@@ -4,6 +4,18 @@
     <VersionPrefix>1.0.0</VersionPrefix>
     <RootNamespace>Serilog</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Description>Simple .NET logging with fully-structured events</Description>
+    <Authors>Serilog Contributors</Authors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageTags>serilog;blazor</PackageTags>
+    <PackageIconUrl>https://serilog.net/images/serilog-nuget.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/serilog/serilog-sinks-browserconsole</PackageProjectUrl>
+    <PackageLicenseUrl>https://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/serilog/serilog-sinks-browserconsole</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatSpecificWarningsAsErrors />
   </PropertyGroup>
 
   <ItemGroup>
