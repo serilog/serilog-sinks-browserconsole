@@ -1,6 +1,6 @@
 # Serilog.Sinks.BrowserConsole [![Build status](https://ci.appveyor.com/api/projects/status/s458q719m2pfwnyk?svg=true)](https://ci.appveyor.com/project/serilog/serilog-sinks-browserconsole)
 
-A console sink for the Blazor/WASM environment.
+A console sink for the Blazor/Wasm environment.
 
 **Usage:**
 
