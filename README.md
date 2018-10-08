@@ -12,6 +12,8 @@ The sink writes log events to the browser console. Unlike the normal Serilog con
 
 The sink is compatible with .NET Standard 2.0 and is built against Blazor 0.6.
 
+Configure the logging pipeline in `Program.Main()`:
+
 ```csharp
 // dotnet add package Serilog.Sinks.BrowserConsole -v ...
 
@@ -21,3 +23,5 @@ Log.Logger = new LoggerConfiguration()
 
 Log.Information("Hello, browser!");
 ```
+
+A more detailed example is available [in this repository](https://github.com/serilog/serilog-sinks-browserconsole/tree/dev/example/ExampleClient).
