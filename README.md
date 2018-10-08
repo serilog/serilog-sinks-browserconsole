@@ -2,7 +2,15 @@
 
 A console sink for the Blazor/Wasm environment.
 
-**Usage:**
+### What's it do?
+
+The sink writes log events to the browser console. Unlike the normal Serilog console sink, which writes out formatted text, this sink takes advantage of the unique capabilities of the browser console to print interactive, fully-structured data.
+
+![Serilog.Sinks.BrowserConsole](https://raw.githubusercontent.com/serilog/serilog-sinks-browserconsole/dev/asset/Screenshot.png)
+
+### Getting started
+
+The sink is compatible with .NET Standard 2.0 and is built against Blazor 0.6.
 
 ```csharp
 // dotnet add package Serilog.Sinks.BrowserConsole -v ...
