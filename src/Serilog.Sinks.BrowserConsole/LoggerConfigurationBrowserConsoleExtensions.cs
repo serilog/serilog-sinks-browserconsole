@@ -13,6 +13,8 @@
 // limitations under the License.
 
 using System;
+using Microsoft.JSInterop;
+using Mono.WebAssembly.Interop;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
@@ -41,7 +43,7 @@ namespace Serilog
             LoggingLevelSwitch levelSwitch = null)
         {
             if (sinkConfiguration == null) throw new ArgumentNullException(nameof(sinkConfiguration));
-            return sinkConfiguration.Sink(new BrowserConsoleSink(), restrictedToMinimumLevel, levelSwitch);
+            return sinkConfiguration.Sink(new BrowserConsoleSink(new MonoWebAssemblyJSRuntime()), restrictedToMinimumLevel, levelSwitch);
         }
     }
 }
