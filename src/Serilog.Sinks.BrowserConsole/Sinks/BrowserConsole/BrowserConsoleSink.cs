@@ -24,7 +24,12 @@ namespace Serilog.Sinks.BrowserConsole
 {
     class BrowserConsoleSink : ILogEventSink
     {
-        readonly IJSRuntime _runtime = new MonoWebAssemblyJSRuntime();
+        private readonly IJSRuntime _runtime;
+
+        public BrowserConsoleSink(IJSRuntime runtime)
+        {
+            _runtime = runtime;
+        }
 
         public void Emit(LogEvent logEvent)
         {
