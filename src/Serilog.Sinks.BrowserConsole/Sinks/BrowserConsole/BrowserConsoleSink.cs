@@ -1,4 +1,4 @@
-﻿// Copyright 2018 Serilog Contributors
+﻿// Copyright 2020 Serilog Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.JSInterop;
-using Mono.WebAssembly.Interop;
 using Serilog.Core;
 using Serilog.Events;
 using Serilog.Parsing;
@@ -28,7 +27,7 @@ namespace Serilog.Sinks.BrowserConsole
 
         public BrowserConsoleSink(IJSRuntime runtime)
         {
-            _runtime = runtime;
+            _runtime = runtime ?? DefaultWebAssemblyJSRuntime.Instance;
         }
 
         public void Emit(LogEvent logEvent)

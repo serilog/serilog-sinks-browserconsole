@@ -1,13 +1,18 @@
 ﻿using System;
-using Microsoft.AspNetCore.Blazor.Hosting;
+using System.Net.Http;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Debugging;
+using System.Threading.Tasks;
 
 namespace ExampleClient
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             SelfLog.Enable(m => Console.Error.WriteLine(m));
 
@@ -21,7 +26,13 @@ namespace ExampleClient
 
             try
             {
-                CreateHostBuilder(args).Build().Run();
+				var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+				builder.RootComponents.Add<App>("app");
+
+				builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+
+				await builder.Build().RunAsync();
             }
             catch (Exception ex)
             {
@@ -29,9 +40,5 @@ namespace ExampleClient
                 throw;
             }
         }
-
-        public static IWebAssemblyHostBuilder CreateHostBuilder(string[] args) =>
-            BlazorWebAssemblyHost.CreateDefaultBuilder()
-                .UseBlazorStartup<Startup>();
     }
 }
