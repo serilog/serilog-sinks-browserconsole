@@ -1,4 +1,4 @@
-﻿// Copyright 2018 Serilog Contributors
+﻿// Copyright 2020 Serilog Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 
 using System;
 using Microsoft.JSInterop;
-using Mono.WebAssembly.Interop;
+using Microsoft.JSInterop.WebAssembly;
 using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
@@ -36,14 +36,16 @@ namespace Serilog
         /// events passed through the sink. Ignored when <paramref name="levelSwitch"/> is specified.</param>
         /// <param name="levelSwitch">A switch allowing the pass-through minimum level
         /// to be changed at runtime.</param>
+        /// <param name="jsRuntime">An instance of <see cref="IJSRuntime"/> to interact with the browser.</param>
         /// <returns>Configuration object allowing method chaining.</returns>
         public static LoggerConfiguration BrowserConsole(
             this LoggerSinkConfiguration sinkConfiguration,
             LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
-            LoggingLevelSwitch levelSwitch = null)
+            LoggingLevelSwitch levelSwitch = null,
+			IJSRuntime jsRuntime = null)
         {
             if (sinkConfiguration == null) throw new ArgumentNullException(nameof(sinkConfiguration));
-            return sinkConfiguration.Sink(new BrowserConsoleSink(new MonoWebAssemblyJSRuntime()), restrictedToMinimumLevel, levelSwitch);
+            return sinkConfiguration.Sink(new BrowserConsoleSink(jsRuntime), restrictedToMinimumLevel, levelSwitch);
         }
     }
 }
