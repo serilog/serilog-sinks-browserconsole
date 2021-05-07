@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Serilog.Events;
 using Serilog.Formatting.Display;
 using Serilog.Parsing;
@@ -15,48 +16,24 @@ namespace Serilog.Sinks.BrowserConsole.Output
         {
             if (outputTemplate is null) throw new ArgumentNullException(nameof(outputTemplate));
             var template = new MessageTemplateParser().Parse(outputTemplate);
-
-            var renderers = new List<OutputTemplateTokenRenderer>();
-            foreach (var token in template.Tokens)
-            {
-                if (token is TextToken tt)
+            
+            _renderers = template.Tokens
+                .Select(token => token switch
                 {
-                    renderers.Add(new TextTokenRenderer(tt.Text));
-                    continue;
-                }
-
-                var pt = (PropertyToken) token;
-                if (pt.PropertyName == OutputProperties.LevelPropertyName)
-                {
-                    renderers.Add(new LevelTokenRenderer(pt));
-                }
-                else if (pt.PropertyName == OutputProperties.NewLinePropertyName)
-                {
-                    renderers.Add(new NewLineTokenRenderer(pt.Alignment));
-                }
-                else if (pt.PropertyName == OutputProperties.ExceptionPropertyName)
-                {
-                    renderers.Add(new ExceptionTokenRenderer(pt));
-                }
-                else if (pt.PropertyName == OutputProperties.MessagePropertyName)
-                {
-                    renderers.Add(new MessageTemplateOutputTokenRenderer(pt, formatProvider));
-                }
-                else if (pt.PropertyName == OutputProperties.TimestampPropertyName)
-                {
-                    renderers.Add(new TimestampTokenRenderer(pt, formatProvider));
-                }
-                else if (pt.PropertyName == "Properties")
-                {
-                    renderers.Add(new PropertiesTokenRenderer(pt, template, formatProvider));
-                }
-                else
-                {
-                    renderers.Add(new EventPropertyTokenRenderer(pt, formatProvider));
-                }
-            }
-
-            _renderers = renderers.ToArray();
+                    TextToken tt => new TextTokenRenderer(tt.Text),
+                    PropertyToken pt => pt.PropertyName switch
+                    {
+                        OutputProperties.LevelPropertyName => new LevelTokenRenderer(pt) as OutputTemplateTokenRenderer,
+                        OutputProperties.NewLinePropertyName => new NewLineTokenRenderer(pt.Alignment),
+                        OutputProperties.ExceptionPropertyName => new ExceptionTokenRenderer(pt),
+                        OutputProperties.MessagePropertyName => new MessageTemplateOutputTokenRenderer(pt, formatProvider),
+                        OutputProperties.TimestampPropertyName => new TimestampTokenRenderer(pt, formatProvider),
+                        "Properties" => new PropertiesTokenRenderer(pt, template, formatProvider),
+                        _ => new EventPropertyTokenRenderer(pt, formatProvider)
+                    },
+                    _ => throw new InvalidOperationException()
+                })
+                .ToArray();
         }
 
         public void Format(LogEvent logEvent, TextWriter output)
