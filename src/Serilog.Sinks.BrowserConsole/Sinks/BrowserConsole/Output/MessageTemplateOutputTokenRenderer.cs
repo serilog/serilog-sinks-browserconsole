@@ -13,43 +13,34 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using Serilog.Events;
 using Serilog.Parsing;
-using Serilog.Sinks.BrowserConsole.Formatting;
-using Serilog.Sinks.BrowserConsole.Rendering;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
     class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
-    {
-        readonly PropertyToken _token;
-        readonly MessageTemplateRenderer _renderer;
-
-        public MessageTemplateOutputTokenRenderer(PropertyToken token, IFormatProvider formatProvider)
-        {
-            _token = token ?? throw new ArgumentNullException(nameof(token));
-
-            var isLiteral = token.Format?.Contains('l', StringComparison.Ordinal) == true;
-            var isJson = token.Format?.Contains('j', StringComparison.Ordinal) == true;
-            
-            var valueFormatter = isJson
-                ? (ValueFormatter)new JsonValueFormatter(formatProvider)
-                : new DisplayValueFormatter(formatProvider);
-
-            _renderer = new MessageTemplateRenderer(valueFormatter, isLiteral);
-        }
-
+    {   
         public override object[] Render(LogEvent logEvent)
-        {
-            var result = _renderer.Render(logEvent.MessageTemplate, logEvent.Properties);
-            return new object[]
+        {            
+            var result = new List<object>();
+            foreach (var token in logEvent.MessageTemplate.Tokens)
             {
-                _token.Alignment switch
+                switch (token)
                 {
-                    null => result,
-                    { } => Padding.Apply(result, _token.Alignment.Value)
+                    case TextToken tt:
+                        result.Add(tt.Text);
+                        break;
+                    case PropertyToken pt:
+                        if (logEvent.Properties.TryGetValue(pt.PropertyName, out var propertyValue))
+                            result.Add(ObjectModelInterop.ToInteropValue(propertyValue));
+                        break;
+                    default:
+                        throw new InvalidOperationException();
                 }
-            };
+            }
+
+            return result.ToArray();         
         }
     }
 }

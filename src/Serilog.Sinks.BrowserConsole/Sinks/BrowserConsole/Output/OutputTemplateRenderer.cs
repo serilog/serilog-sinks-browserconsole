@@ -24,7 +24,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
                         OutputProperties.LevelPropertyName => new LevelTokenRenderer(pt) as OutputTemplateTokenRenderer,
                         OutputProperties.NewLinePropertyName => new NewLineTokenRenderer(pt.Alignment),
                         OutputProperties.ExceptionPropertyName => new ExceptionTokenRenderer(),
-                        OutputProperties.MessagePropertyName => new MessageTemplateOutputTokenRenderer(pt, formatProvider),
+                        OutputProperties.MessagePropertyName => new MessageTemplateOutputTokenRenderer(),
                         OutputProperties.TimestampPropertyName => new TimestampTokenRenderer(pt, formatProvider),
                         OutputProperties.PropertiesPropertyName => new PropertiesTokenRenderer(pt, template, formatProvider),
                         _ => new EventPropertyTokenRenderer(pt, formatProvider)
