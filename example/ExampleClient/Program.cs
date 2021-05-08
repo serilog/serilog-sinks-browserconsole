@@ -18,7 +18,7 @@ namespace ExampleClient
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.BrowserConsole()
+                .WriteTo.BrowserConsole(outputTemplate:"[{Timestamp:yyyy-MM-dd HH:mm:ss}@{Level:u3}] Hello from serilog browser console sink! {NewLine}{Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
 
             Log.Debug("Hello, browser!");

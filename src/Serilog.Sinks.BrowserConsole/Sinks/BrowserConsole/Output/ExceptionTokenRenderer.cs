@@ -13,9 +13,7 @@
 // limitations under the License.
 
 using System;
-using System.IO;
 using Serilog.Events;
-using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
@@ -29,6 +27,6 @@ namespace Serilog.Sinks.BrowserConsole.Output
         /// <returns>Array of objects to pass to browser console</returns>
         public override object[] Render(LogEvent logEvent) =>
             logEvent.Exception is null ? 
-                Array.Empty<object>() : new object[] {logEvent.Exception};
+                Array.Empty<object>() : new object[] {logEvent.Exception.ToString()};
     }
 }
