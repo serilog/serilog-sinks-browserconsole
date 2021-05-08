@@ -12,8 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.IO;
-using System.Linq;
 using System.Text;
 using Serilog.Parsing;
 
@@ -21,8 +19,6 @@ namespace Serilog.Sinks.BrowserConsole.Rendering
 {
     internal static class Padding
     {
-        static readonly char[] PaddingChars = Enumerable.Repeat(' ', 80).ToArray();
-
         /// <summary>
         /// Constructs the output string containing the provided value and
         /// applying direction-based padding when <paramref name="alignment"/> is provided.
@@ -43,7 +39,7 @@ namespace Serilog.Sinks.BrowserConsole.Rendering
             if (alignment.Value.Direction == AlignmentDirection.Left)
                 sb.Append(value);
 
-            sb.Append(PaddingChars, 0, pad);
+            sb.Append(' ', pad);
             
             if (alignment.Value.Direction == AlignmentDirection.Right)
                 sb.Append(value);

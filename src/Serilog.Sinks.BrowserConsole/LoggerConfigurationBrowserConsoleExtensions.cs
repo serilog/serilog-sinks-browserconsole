@@ -14,8 +14,6 @@
 
 using System;
 using Microsoft.JSInterop;
-using Microsoft.JSInterop.WebAssembly;
-using Serilog;
 using Serilog.Configuration;
 using Serilog.Core;
 using Serilog.Events;

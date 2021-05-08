@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.BrowserConsole.Rendering;
@@ -22,7 +21,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
 {
     internal class NewLineTokenRenderer : OutputTemplateTokenRenderer
     {
-        readonly Alignment? _alignment;
+        private readonly Alignment? _alignment;
 
         public NewLineTokenRenderer(Alignment? alignment)
         {

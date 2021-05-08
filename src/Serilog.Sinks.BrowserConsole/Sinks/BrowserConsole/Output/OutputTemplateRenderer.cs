@@ -6,9 +6,9 @@ using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    class OutputTemplateRenderer
+    internal class OutputTemplateRenderer
     {
-        readonly OutputTemplateTokenRenderer[] _renderers;
+        private readonly OutputTemplateTokenRenderer[] _renderers;
 
         public OutputTemplateRenderer(string outputTemplate, IFormatProvider formatProvider)
         {
@@ -26,7 +26,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
                         OutputProperties.ExceptionPropertyName => new ExceptionTokenRenderer(),
                         OutputProperties.MessagePropertyName => new MessageTemplateOutputTokenRenderer(),
                         OutputProperties.TimestampPropertyName => new TimestampTokenRenderer(pt, formatProvider),
-                        OutputProperties.PropertiesPropertyName => new PropertiesTokenRenderer(pt, template, formatProvider),
+                        OutputProperties.PropertiesPropertyName => new PropertiesTokenRenderer(pt, template),
                         _ => new EventPropertyTokenRenderer(pt, formatProvider)
                     },
                     _ => throw new InvalidOperationException()

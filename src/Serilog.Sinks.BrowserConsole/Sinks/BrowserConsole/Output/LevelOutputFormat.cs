@@ -23,36 +23,36 @@ namespace Serilog.Sinks.BrowserConsole.Output
     /// Width is set through formats like "u3" (uppercase three chars),
     /// "w1" (one lowercase char), or "t4" (title case four chars).
     /// </summary>
-    static class LevelOutputFormat
+    internal static class LevelOutputFormat
     {
-        static readonly string[][] TitleCaseLevelMap =
+        private static readonly string[][] TitleCaseLevelMap =
         {
             new[] { "V", "Vb", "Vrb", "Verb" },
             new[] { "D", "De", "Dbg", "Dbug" },
             new[] { "I", "In", "Inf", "Info" },
             new[] { "W", "Wn", "Wrn", "Warn" },
             new[] { "E", "Er", "Err", "Eror" },
-            new[] { "F", "Fa", "Ftl", "Fatl" },
+            new[] { "F", "Fa", "Ftl", "Fatl" }
         };
 
-        static readonly string[][] LowercaseLevelMap =
+        private static readonly string[][] LowercaseLevelMap =
         {
             new[] { "v", "vb", "vrb", "verb" },
             new[] { "d", "de", "dbg", "dbug" },
             new[] { "i", "in", "inf", "info" },
             new[] { "w", "wn", "wrn", "warn" },
             new[] { "e", "er", "err", "eror" },
-            new[] { "f", "fa", "ftl", "fatl" },
+            new[] { "f", "fa", "ftl", "fatl" }
         };
 
-        static readonly string[][] UppercaseLevelMap =
+        private static readonly string[][] UppercaseLevelMap =
         {
             new[] { "V", "VB", "VRB", "VERB" },
             new[] { "D", "DE", "DBG", "DBUG" },
             new[] { "I", "IN", "INF", "INFO" },
             new[] { "W", "WN", "WRN", "WARN" },
             new[] { "E", "ER", "ERR", "EROR" },
-            new[] { "F", "FA", "FTL", "FATL" },
+            new[] { "F", "FA", "FTL", "FATL" }
         };
 
         public static string GetLevelMoniker(LogEventLevel value, string format = null)
@@ -69,15 +69,17 @@ namespace Serilog.Sinks.BrowserConsole.Output
                 width += format[2] - '0';
             }
 
-            if (width < 1)
-                return string.Empty;
-
-            if (width > 4)
+            switch (width)
             {
-                var stringValue = value.ToString();
-                if (stringValue.Length > width)
-                    stringValue = stringValue.Substring(0, width);
-                return Casing.Format(stringValue);
+                case < 1:
+                    return string.Empty;
+                case > 4:
+                {
+                    var stringValue = value.ToString();
+                    if (stringValue.Length > width)
+                        stringValue = stringValue.Substring(0, width);
+                    return Casing.Format(stringValue);
+                }
             }
 
             var index = (int)value;

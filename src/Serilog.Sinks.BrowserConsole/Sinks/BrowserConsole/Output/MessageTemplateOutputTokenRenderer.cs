@@ -19,7 +19,7 @@ using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
+    internal class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
     {   
         public override object[] Render(LogEvent logEvent)
         {            

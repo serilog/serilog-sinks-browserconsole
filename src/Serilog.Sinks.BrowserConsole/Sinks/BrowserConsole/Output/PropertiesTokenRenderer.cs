@@ -12,18 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Linq;
 using Serilog.Events;
 using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    class PropertiesTokenRenderer : OutputTemplateTokenRenderer
+    internal class PropertiesTokenRenderer : OutputTemplateTokenRenderer
     {
-        readonly MessageTemplate _outputTemplate;
+        private readonly MessageTemplate _outputTemplate;
         private readonly PropertyToken _token;
-        public PropertiesTokenRenderer(PropertyToken token, MessageTemplate outputTemplate, IFormatProvider formatProvider)
+        public PropertiesTokenRenderer(PropertyToken token, MessageTemplate outputTemplate)
         {
             _outputTemplate = outputTemplate;
             _token = token;
