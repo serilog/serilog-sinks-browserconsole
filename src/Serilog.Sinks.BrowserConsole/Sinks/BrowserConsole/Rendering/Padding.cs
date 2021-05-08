@@ -14,6 +14,7 @@
 
 using System.IO;
 using System.Linq;
+using System.Text;
 using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Rendering
@@ -23,35 +24,30 @@ namespace Serilog.Sinks.BrowserConsole.Rendering
         static readonly char[] PaddingChars = Enumerable.Repeat(' ', 80).ToArray();
 
         /// <summary>
-        /// Writes the provided value to the output, applying direction-based padding when <paramref name="alignment"/> is provided.
+        /// Constructs the output string containing the provided value and
+        /// applying direction-based padding when <paramref name="alignment"/> is provided.
         /// </summary>
-        /// <param name="output">Output object to write result.</param>
         /// <param name="value">Provided value.</param>
         /// <param name="alignment">The alignment settings to apply when rendering <paramref name="value"/>.</param>
-        public static void Apply(TextWriter output, string value, Alignment? alignment)
+        /// <returns>string with value and applied padding</returns>
+        public static string Apply(string value, Alignment? alignment)
         {
             if (alignment is null || value.Length >= alignment.Value.Width)
             {
-                output.Write(value);
-                return;
+                return value;
             }
 
+            var sb = new StringBuilder();
             var pad = alignment.Value.Width - value.Length;
 
             if (alignment.Value.Direction == AlignmentDirection.Left)
-                output.Write(value);
+                sb.Append(value);
 
-            if (pad <= PaddingChars.Length)
-            {
-                output.Write(PaddingChars, 0, pad);
-            }
-            else
-            {
-                output.Write(new string(' ', pad));
-            }
-
+            sb.Append(PaddingChars, 0, pad);
+            
             if (alignment.Value.Direction == AlignmentDirection.Right)
-                output.Write(value);
+                sb.Append(value);
+            return sb.ToString();
         }
     }
 }

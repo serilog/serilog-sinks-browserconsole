@@ -26,9 +26,6 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _text = text;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
-        {
-            output.Write(_text);
-        }
+        public override object[] Render(LogEvent logEvent) => new object[] {_text};
     }
 }

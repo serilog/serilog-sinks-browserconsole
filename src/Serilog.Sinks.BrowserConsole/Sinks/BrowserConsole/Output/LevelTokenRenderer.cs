@@ -28,10 +28,11 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _levelToken = levelToken;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override object[] Render(LogEvent logEvent)
         {
             var moniker = LevelOutputFormat.GetLevelMoniker(logEvent.Level, _levelToken.Format);
-            Padding.Apply(output, moniker, _levelToken.Alignment);
+            var allignedOutput = Padding.Apply(moniker, _levelToken.Alignment);
+            return new object[] {allignedOutput};
         }
     }
 }

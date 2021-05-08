@@ -29,12 +29,14 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _alignment = alignment;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
-        {
-            if (_alignment.HasValue)
-                Padding.Apply(output, Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length));
-            else
-                output.WriteLine();
-        }
+        public override object[] Render(LogEvent logEvent) =>
+            new object[]
+            {
+                _alignment switch
+                {
+                    null => Environment.NewLine,
+                    { } => Padding.Apply(Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length))
+                }
+            };
     }
 }

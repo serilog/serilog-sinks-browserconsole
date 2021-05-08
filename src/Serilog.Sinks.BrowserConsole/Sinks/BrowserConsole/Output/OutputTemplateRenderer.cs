@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using Serilog.Events;
 using Serilog.Formatting.Display;
@@ -25,10 +23,10 @@ namespace Serilog.Sinks.BrowserConsole.Output
                     {
                         OutputProperties.LevelPropertyName => new LevelTokenRenderer(pt) as OutputTemplateTokenRenderer,
                         OutputProperties.NewLinePropertyName => new NewLineTokenRenderer(pt.Alignment),
-                        OutputProperties.ExceptionPropertyName => new ExceptionTokenRenderer(pt),
+                        OutputProperties.ExceptionPropertyName => new ExceptionTokenRenderer(),
                         OutputProperties.MessagePropertyName => new MessageTemplateOutputTokenRenderer(pt, formatProvider),
                         OutputProperties.TimestampPropertyName => new TimestampTokenRenderer(pt, formatProvider),
-                        "Properties" => new PropertiesTokenRenderer(pt, template, formatProvider),
+                        OutputProperties.PropertiesPropertyName => new PropertiesTokenRenderer(pt, template, formatProvider),
                         _ => new EventPropertyTokenRenderer(pt, formatProvider)
                     },
                     _ => throw new InvalidOperationException()
@@ -36,13 +34,11 @@ namespace Serilog.Sinks.BrowserConsole.Output
                 .ToArray();
         }
 
-        public void Format(LogEvent logEvent, TextWriter output)
+        public object[] Format(LogEvent logEvent)
         {
             if (logEvent is null) throw new ArgumentNullException(nameof(logEvent));
-            if (output is null) throw new ArgumentNullException(nameof(output));
 
-            foreach (var renderer in _renderers)
-                renderer.Render(logEvent, output);
+            return _renderers.SelectMany(r => r.Render(logEvent)).ToArray();
         }
     }
 }

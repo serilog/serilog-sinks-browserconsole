@@ -13,55 +13,33 @@
 // limitations under the License.
 
 using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using Serilog.Events;
 using Serilog.Parsing;
-using Serilog.Sinks.BrowserConsole.Formatting;
-using Serilog.Sinks.BrowserConsole.Rendering;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
     class PropertiesTokenRenderer : OutputTemplateTokenRenderer
     {
         readonly MessageTemplate _outputTemplate;
-        readonly PropertyToken _token;
-        readonly ValueFormatter _valueFormatter;
-
+        private readonly PropertyToken _token;
         public PropertiesTokenRenderer(PropertyToken token, MessageTemplate outputTemplate, IFormatProvider formatProvider)
         {
             _outputTemplate = outputTemplate;
-            _token = token ?? throw new ArgumentNullException(nameof(token));
-            var isJson = token.Format?.Contains('j', StringComparison.Ordinal) == true;
-            
-            _valueFormatter = isJson
-                ? new JsonValueFormatter(formatProvider)
-                : new DisplayValueFormatter(formatProvider);
+            _token = token;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override object[] Render(LogEvent logEvent)
         {
             var included = logEvent.Properties
                 .Where(p => !TemplateContainsPropertyName(logEvent.MessageTemplate, p.Key) &&
                             !TemplateContainsPropertyName(_outputTemplate, p.Key))
                 .Select(p => new LogEventProperty(p.Key, p.Value));
 
-            var value = new StructureValue(included);
-
-            if (_token.Alignment is null)
-            {
-                _valueFormatter.Format(value, output, null);
-                return;
-            }
-
-            var buffer = new StringWriter(new StringBuilder(value.Properties.Count * 16));
-            var invisible = _valueFormatter.Format(value, buffer, null);
-            var str = buffer.ToString();
-            Padding.Apply(output, str, _token.Alignment.Value.Widen(invisible));
+            return included.Select(p => ObjectModelInterop.ToInteropValue(p.Value, _token.Format)).ToArray();
         }
 
-        static bool TemplateContainsPropertyName(MessageTemplate template, string propertyName)
+        private static bool TemplateContainsPropertyName(MessageTemplate template, string propertyName)
         {
             foreach (var token in template.Tokens)
             {

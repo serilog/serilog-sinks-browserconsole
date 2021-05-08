@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.BrowserConsole.Formatting;
@@ -40,18 +39,17 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _renderer = new MessageTemplateRenderer(valueFormatter, isLiteral);
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override object[] Render(LogEvent logEvent)
         {
-            if (_token.Alignment is null)
+            var result = _renderer.Render(logEvent.MessageTemplate, logEvent.Properties);
+            return new object[]
             {
-                _renderer.Render(logEvent.MessageTemplate, logEvent.Properties, output);
-                return;
-            }
-
-            var buffer = new StringWriter();
-            var invisible = _renderer.Render(logEvent.MessageTemplate, logEvent.Properties, buffer);
-            var value = buffer.ToString();
-            Padding.Apply(output, value, _token.Alignment.Value.Widen(invisible));
+                _token.Alignment switch
+                {
+                    null => result,
+                    { } => Padding.Apply(result, _token.Alignment.Value)
+                }
+            };
         }
     }
 }

@@ -19,6 +19,6 @@ namespace Serilog.Sinks.BrowserConsole.Output
 {
     abstract class OutputTemplateTokenRenderer
     {
-        public abstract void Render(LogEvent logEvent, TextWriter output);
+        public abstract object[] Render(LogEvent logEvent);
     }
 }

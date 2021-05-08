@@ -31,23 +31,23 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _formatProvider = formatProvider;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override object[] Render(LogEvent logEvent)
         {
             // We need access to ScalarValue.Render() to avoid this alloc; just ensures
             // that custom format providers are supported properly.
             var sv = new ScalarValue(logEvent.Timestamp);
-            
-            if (_token.Alignment is null)
+            var buffer = new StringWriter();
+            sv.Render(buffer, _token.Format, _formatProvider);
+            var str = buffer.ToString();
+
+            return new object[]
             {
-                sv.Render(output, _token.Format, _formatProvider);
-            }
-            else
-            {
-                var buffer = new StringWriter();
-                sv.Render(buffer, _token.Format, _formatProvider);
-                var str = buffer.ToString();
-                Padding.Apply(output, str, _token.Alignment);
-            }
+                _token.Alignment switch
+                {
+                    null => str,
+                    { } => Padding.Apply(str, _token.Alignment)
+                }
+            };
         }
     }
 }

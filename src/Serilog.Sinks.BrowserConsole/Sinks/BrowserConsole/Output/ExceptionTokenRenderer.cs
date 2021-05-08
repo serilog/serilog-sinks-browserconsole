@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
@@ -20,19 +21,14 @@ namespace Serilog.Sinks.BrowserConsole.Output
 {
     internal class ExceptionTokenRenderer : OutputTemplateTokenRenderer
     {
-        const string StackFrameLinePrefix = "   ";
-
-        public ExceptionTokenRenderer(PropertyToken pt)
-        {
-
-        }
-
-        public override void Render(LogEvent logEvent, TextWriter output)
-        {
-            // Padding is never applied by this renderer.
-            var exceptionLines = logEvent.Exception?.ToString();
-            if(exceptionLines != null)
-                output.WriteLine(exceptionLines);
-        }
+        /// <summary>
+        /// "Renders" <see cref="Exception"/> to array of single exception element, if exception is not <see langword="null"/>.
+        /// If logevent has no exception set the result will be empty array of objects
+        /// </summary>
+        /// <param name="logEvent">Logging event that should be rendered</param>
+        /// <returns>Array of objects to pass to browser console</returns>
+        public override object[] Render(LogEvent logEvent) =>
+            logEvent.Exception is null ? 
+                Array.Empty<object>() : new object[] {logEvent.Exception};
     }
 }

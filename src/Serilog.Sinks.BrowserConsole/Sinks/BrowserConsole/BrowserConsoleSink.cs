@@ -13,29 +13,30 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using Microsoft.JSInterop;
 using Serilog.Core;
 using Serilog.Events;
-using Serilog.Parsing;
+using Serilog.Sinks.BrowserConsole.Output;
 
 namespace Serilog.Sinks.BrowserConsole
 {
     class BrowserConsoleSink : ILogEventSink
     {
         private readonly IJSRuntime _runtime;
+        private readonly OutputTemplateRenderer _formatter;
 
-        public BrowserConsoleSink(IJSRuntime runtime)
+        public BrowserConsoleSink(IJSRuntime runtime, OutputTemplateRenderer formatter)
         {
             _runtime = runtime ?? DefaultWebAssemblyJSRuntime.Instance;
+            _formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         }
 
-        public void Emit(LogEvent logEvent)
+        public async void Emit(LogEvent logEvent)
         {
             if (logEvent == null) throw new ArgumentNullException(nameof(logEvent));
             var outputStream = SelectConsoleMethod(logEvent.Level);
-            var args = Format(logEvent);
-            _runtime.InvokeAsync<string>(outputStream, args);
+            var args = _formatter.Format(logEvent);
+            await _runtime.InvokeAsync<string>(outputStream, args);
         }
 
         static string SelectConsoleMethod(LogEventLevel logLevel)
@@ -47,39 +48,6 @@ namespace Serilog.Sinks.BrowserConsole
             if (logLevel == LogEventLevel.Information)
                 return "console.info";
             return "console.log";
-        }
-
-        static object[] Format(LogEvent logEvent)
-        {
-            var result = new List<object>();
-
-            foreach (var token in logEvent.MessageTemplate.Tokens)
-            {
-                if (token is TextToken tt)
-                {
-                    result.Add(tt.Text);
-                }
-                else
-                {
-                    var pt = (PropertyToken) token;
-                    if (logEvent.Properties.TryGetValue(pt.PropertyName, out var pv))
-                    {
-                        result.Add(ObjectModelInterop.ToInteropValue(pv, pt.Format));
-                    }
-                    else
-                    {
-                        result.Add(null);
-                    }
-                }
-            }
-
-            if (logEvent.Exception != null)
-            {
-                result.Add(Environment.NewLine);
-                result.Add(logEvent.Exception.ToString());
-            }
-
-            return result.ToArray();
         }
     }
 }

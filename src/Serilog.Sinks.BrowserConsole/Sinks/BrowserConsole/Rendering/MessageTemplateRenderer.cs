@@ -32,24 +32,25 @@ namespace Serilog.Sinks.BrowserConsole.Rendering
             _isLiteral = isLiteral;
         }
 
-        public int Render(MessageTemplate template, IReadOnlyDictionary<string, LogEventPropertyValue> properties,
-            TextWriter output)
+        public string Render(MessageTemplate template, IReadOnlyDictionary<string, LogEventPropertyValue> properties)
         {
-            var count = 0;
+            var output = new StringWriter();
             foreach (var token in template.Tokens)
             {
-                if (token is TextToken tt)
+                switch (token)
                 {
-                    count += RenderTextToken(tt, output);
-                }
-                else
-                {
-                    var pt = (PropertyToken) token;
-                    count += RenderPropertyToken(pt, properties, output);
+                    case TextToken tt:
+                        RenderTextToken(tt, output);
+                        break;
+                    case PropertyToken pt:
+                        RenderPropertyToken(pt, properties, output);
+                        break;
+                    default:
+                        throw new InvalidOperationException();
                 }
             }
 
-            return count;
+            return output.ToString();
         }
 
         int RenderTextToken(TextToken tt, TextWriter output)
@@ -90,11 +91,11 @@ namespace Serilog.Sinks.BrowserConsole.Rendering
             if (pt.Alignment.Value.Direction == AlignmentDirection.Left)
             {
                 var invisible = RenderValue(_valueFormatter, propertyValue, output, pt.Format);
-                Padding.Apply(output, string.Empty, pt.Alignment.Value.Widen(-valueLength));
+                output.Write(Padding.Apply(string.Empty, pt.Alignment.Value.Widen(-valueLength)));
                 return invisible;
             }
 
-            Padding.Apply(output, string.Empty, pt.Alignment.Value.Widen(-valueLength));
+            output.Write(Padding.Apply(string.Empty, pt.Alignment.Value.Widen(-valueLength)));
             return RenderValue(_valueFormatter, propertyValue, output, pt.Format);
         }
 

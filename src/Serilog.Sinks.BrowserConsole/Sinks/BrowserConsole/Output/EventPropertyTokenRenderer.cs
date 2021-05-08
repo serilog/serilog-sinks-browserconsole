@@ -31,16 +31,14 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _formatProvider = formatProvider;
         }
 
-        public override void Render(LogEvent logEvent, TextWriter output)
+        public override object[] Render(LogEvent logEvent)
         {
             // If a property is missing, don't render anything (message templates render the raw token here).
             if (!logEvent.Properties.TryGetValue(_token.PropertyName, out var propertyValue))
-            {
-                Padding.Apply(output, string.Empty, _token.Alignment);
-                return;
-            }
+                return new object[] {Padding.Apply(string.Empty, _token.Alignment)};
 
-            var writer = _token.Alignment.HasValue ? new StringWriter() : output;
+
+            var writer = new StringWriter();
 
             // If the value is a scalar string, support some additional formats: 'u' for uppercase
             // and 'w' for lowercase.
@@ -54,12 +52,15 @@ namespace Serilog.Sinks.BrowserConsole.Output
                 propertyValue.Render(writer, _token.Format, _formatProvider);
             }
 
-            if (_token.Alignment.HasValue)
+            var str = writer.ToString();
+            return new object[]
             {
-                var str = writer.ToString();
-                Padding.Apply(output, str, _token.Alignment);
-            }
-            
+                _token.Alignment switch
+                {
+                    null => str,
+                    { } => Padding.Apply(str, _token.Alignment)
+                }
+            };
         }
     }
 }
