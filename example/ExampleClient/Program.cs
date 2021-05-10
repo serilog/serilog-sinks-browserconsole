@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Debugging;
 using System.Threading.Tasks;
@@ -18,7 +16,7 @@ namespace ExampleClient
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.BrowserConsole()
+                .WriteTo.BrowserConsole(outputTemplate:"[{Timestamp:yyyy-MM-dd HH:mm:ss}@{Level:u3}] Hello from serilog browser console sink! {NewLine}{Message}{NewLine}{Exception}")
                 .CreateLogger();
 
             Log.Debug("Hello, browser!");
