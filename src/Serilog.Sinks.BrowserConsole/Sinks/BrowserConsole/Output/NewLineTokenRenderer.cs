@@ -19,23 +19,21 @@ using Serilog.Sinks.BrowserConsole.Rendering;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal class NewLineTokenRenderer : OutputTemplateTokenRenderer
+    class NewLineTokenRenderer : OutputTemplateTokenRenderer
     {
-        private readonly Alignment? _alignment;
+        readonly Alignment? _alignment;
 
         public NewLineTokenRenderer(Alignment? alignment)
         {
             _alignment = alignment;
         }
 
-        public override object[] Render(LogEvent logEvent) =>
-            new object[]
-            {
-                _alignment switch
-                {
-                    null => Environment.NewLine,
-                    { } => Padding.Apply(Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length))
-                }
-            };
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        {
+            if (_alignment is not null)
+                emitToken(Padding.Apply(Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length)));
+            else
+                emitToken(Environment.NewLine);
+        }
     }
 }

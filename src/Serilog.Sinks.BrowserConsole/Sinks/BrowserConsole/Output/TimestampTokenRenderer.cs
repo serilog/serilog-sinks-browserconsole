@@ -20,10 +20,10 @@ using Serilog.Sinks.BrowserConsole.Rendering;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal class TimestampTokenRenderer : OutputTemplateTokenRenderer
+    class TimestampTokenRenderer : OutputTemplateTokenRenderer
     {
-        private readonly PropertyToken _token;
-        private readonly IFormatProvider _formatProvider;
+        readonly PropertyToken _token;
+        readonly IFormatProvider _formatProvider;
 
         public TimestampTokenRenderer(PropertyToken token, IFormatProvider formatProvider)
         {
@@ -31,7 +31,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _formatProvider = formatProvider;
         }
 
-        public override object[] Render(LogEvent logEvent)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             // We need access to ScalarValue.Render() to avoid this alloc; just ensures
             // that custom format providers are supported properly.
@@ -40,14 +40,10 @@ namespace Serilog.Sinks.BrowserConsole.Output
             sv.Render(buffer, _token.Format, _formatProvider);
             var str = buffer.ToString();
 
-            return new object[]
-            {
-                _token.Alignment switch
-                {
-                    null => str,
-                    { } => Padding.Apply(str, _token.Alignment)
-                }
-            };
+            if (_token.Alignment is not null)
+                emitToken(Padding.Apply(str, _token.Alignment));
+            else
+                emitToken(str);
         }
     }
 }

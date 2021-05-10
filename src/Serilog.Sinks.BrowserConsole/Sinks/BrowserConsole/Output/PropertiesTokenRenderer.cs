@@ -18,27 +18,30 @@ using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal class PropertiesTokenRenderer : OutputTemplateTokenRenderer
+    class PropertiesTokenRenderer : OutputTemplateTokenRenderer
     {
-        private readonly MessageTemplate _outputTemplate;
-        private readonly PropertyToken _token;
+        readonly MessageTemplate _outputTemplate;
+        readonly PropertyToken _token;
         public PropertiesTokenRenderer(PropertyToken token, MessageTemplate outputTemplate)
         {
             _outputTemplate = outputTemplate;
             _token = token;
         }
 
-        public override object[] Render(LogEvent logEvent)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             var included = logEvent.Properties
                 .Where(p => !TemplateContainsPropertyName(logEvent.MessageTemplate, p.Key) &&
                             !TemplateContainsPropertyName(_outputTemplate, p.Key))
                 .Select(p => new LogEventProperty(p.Key, p.Value));
 
-            return included.Select(p => ObjectModelInterop.ToInteropValue(p.Value, _token.Format)).ToArray();
+            foreach (var property in included)
+            {
+                emitToken(ObjectModelInterop.ToInteropValue(property.Value, _token.Format));
+            }
         }
 
-        private static bool TemplateContainsPropertyName(MessageTemplate template, string propertyName)
+        static bool TemplateContainsPropertyName(MessageTemplate template, string propertyName)
         {
             foreach (var token in template.Tokens)
             {

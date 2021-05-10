@@ -16,8 +16,10 @@ using Serilog.Events;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal abstract class OutputTemplateTokenRenderer
+    delegate void TokenEmitter(object token);
+    
+    abstract class OutputTemplateTokenRenderer
     {
-        public abstract object[] Render(LogEvent logEvent);
+        public abstract void Render(LogEvent logEvent, TokenEmitter emitToken);
     }
 }

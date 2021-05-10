@@ -27,7 +27,11 @@ namespace Serilog
     /// </summary>
     public static class LoggerConfigurationBrowserConsoleExtensions
     {
-        private const string DefaultConsoleOutputTemplate = "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}";
+        const string SerilogToken =
+            "%cserilog{_}color:white;background:#8c7574;border-radius:3px;padding:1px 2px;font-weight:600;";
+            
+        const string DefaultConsoleOutputTemplate = SerilogToken + "{Message}{NewLine}{Exception}";
+        
         /// <summary>
         /// Writes log events to the browser console.
         /// </summary>

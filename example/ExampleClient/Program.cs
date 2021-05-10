@@ -16,7 +16,7 @@ namespace ExampleClient
 
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
-                .WriteTo.BrowserConsole(outputTemplate:"[{Timestamp:yyyy-MM-dd HH:mm:ss}@{Level:u3}] Hello from serilog browser console sink! {NewLine}{Message}{NewLine}{Exception}")
+                .WriteTo.BrowserConsole()
                 .CreateLogger();
 
             Log.Debug("Hello, browser!");
@@ -28,7 +28,7 @@ namespace ExampleClient
 
 				builder.RootComponents.Add<App>("app");
 
-				builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+				builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 				await builder.Build().RunAsync();
             }

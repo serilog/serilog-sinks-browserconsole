@@ -17,16 +17,12 @@ using Serilog.Events;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal class ExceptionTokenRenderer : OutputTemplateTokenRenderer
+    class ExceptionTokenRenderer : OutputTemplateTokenRenderer
     {
-        /// <summary>
-        /// "Renders" <see cref="Exception"/> to array of single exception element, if exception is not <see langword="null"/>.
-        /// If logevent has no exception set the result will be empty array of objects
-        /// </summary>
-        /// <param name="logEvent">Logging event that should be rendered</param>
-        /// <returns>Array of objects to pass to browser console</returns>
-        public override object[] Render(LogEvent logEvent) =>
-            logEvent.Exception is null ? 
-                Array.Empty<object>() : new object[] {logEvent.Exception.ToString()};
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        {
+            if (logEvent.Exception is not null)
+                emitToken(logEvent.Exception.ToString());
+        }
     }
 }

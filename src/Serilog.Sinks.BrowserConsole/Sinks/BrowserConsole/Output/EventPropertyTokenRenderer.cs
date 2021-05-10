@@ -20,10 +20,10 @@ using Serilog.Sinks.BrowserConsole.Rendering;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal class EventPropertyTokenRenderer : OutputTemplateTokenRenderer
+    class EventPropertyTokenRenderer : OutputTemplateTokenRenderer
     {
-        private readonly PropertyToken _token;
-        private readonly IFormatProvider _formatProvider;
+        readonly PropertyToken _token;
+        readonly IFormatProvider _formatProvider;
 
         public EventPropertyTokenRenderer(PropertyToken token, IFormatProvider formatProvider)
         {
@@ -31,12 +31,15 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _formatProvider = formatProvider;
         }
 
-        public override object[] Render(LogEvent logEvent)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             // If a property is missing, don't render anything (message templates render the raw token here).
             if (!logEvent.Properties.TryGetValue(_token.PropertyName, out var propertyValue))
-                return new object[] {Padding.Apply(string.Empty, _token.Alignment)};
-
+            {
+                if (_token.Alignment is not null)
+                    emitToken(Padding.Apply(string.Empty, _token.Alignment));
+                return;
+            }
 
             var writer = new StringWriter();
 
@@ -53,14 +56,10 @@ namespace Serilog.Sinks.BrowserConsole.Output
             }
 
             var str = writer.ToString();
-            return new object[]
-            {
-                _token.Alignment switch
-                {
-                    null => str,
-                    { } => Padding.Apply(str, _token.Alignment)
-                }
-            };
+            if (_token.Alignment is not null)
+                emitToken(Padding.Apply(str, _token.Alignment));
+            else
+                emitToken(str);
         }
     }
 }

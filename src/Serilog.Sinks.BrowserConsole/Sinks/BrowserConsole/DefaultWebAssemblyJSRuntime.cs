@@ -20,31 +20,31 @@ using Microsoft.JSInterop.WebAssembly;
 
 namespace Serilog.Sinks.BrowserConsole
 {
-    internal sealed class DefaultWebAssemblyJSRuntime : WebAssemblyJSRuntime
+    sealed class DefaultWebAssemblyJSRuntime : WebAssemblyJSRuntime
     {
         internal static readonly DefaultWebAssemblyJSRuntime Instance = new DefaultWebAssemblyJSRuntime();
 
         public ElementReferenceContext ElementReferenceContext { get; }
 
-        private DefaultWebAssemblyJSRuntime()
+        DefaultWebAssemblyJSRuntime()
         {
             ElementReferenceContext = new WebElementReferenceContext(this);
             JsonSerializerOptions.Converters.Add(new ElementReferenceJsonConverter(ElementReferenceContext));
         }
 
         #pragma warning disable IDE0051 // Remove unused private members. Invoked via Mono's JS interop mechanism (invoke_method)
-        private static string InvokeDotNet(string assemblyName, string methodIdentifier, string dotNetObjectId, string argsJson)
+        static string InvokeDotNet(string assemblyName, string methodIdentifier, string dotNetObjectId, string argsJson)
         {
             var callInfo = new DotNetInvocationInfo(assemblyName, methodIdentifier, dotNetObjectId == null ? default : long.Parse(dotNetObjectId), callId: null);
             return DotNetDispatcher.Invoke(Instance, callInfo, argsJson);
         }
 
         // Invoked via Mono's JS interop mechanism (invoke_method)
-        private static void EndInvokeJS(string argsJson)
+        static void EndInvokeJS(string argsJson)
             => DotNetDispatcher.EndInvokeJS(Instance, argsJson);
 
         // Invoked via Mono's JS interop mechanism (invoke_method)
-        private static void BeginInvokeDotNet(string callId, string assemblyNameOrDotNetObjectId, string methodIdentifier, string argsJson)
+        static void BeginInvokeDotNet(string callId, string assemblyNameOrDotNetObjectId, string methodIdentifier, string argsJson)
         {
             // Figure out whether 'assemblyNameOrDotNetObjectId' is the assembly name or the instance ID
             // We only need one for any given call. This helps to work around the limitation that we can
