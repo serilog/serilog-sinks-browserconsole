@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Serilog.Events;
 using Serilog.Formatting.Display;
@@ -6,9 +7,9 @@ using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal class OutputTemplateRenderer
+    class OutputTemplateRenderer
     {
-        private readonly OutputTemplateTokenRenderer[] _renderers;
+        readonly OutputTemplateTokenRenderer[] _renderers;
 
         public OutputTemplateRenderer(string outputTemplate, IFormatProvider formatProvider)
         {
@@ -38,7 +39,12 @@ namespace Serilog.Sinks.BrowserConsole.Output
         {
             if (logEvent is null) throw new ArgumentNullException(nameof(logEvent));
 
-            return _renderers.SelectMany(r => r.Render(logEvent)).ToArray();
+            var buffer = new List<object>(_renderers.Length * 2);
+            foreach (var renderer in _renderers)
+            {
+                renderer.Render(logEvent, buffer.Add);
+            }
+            return buffer.ToArray();
         }
     }
 }

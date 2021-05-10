@@ -16,7 +16,7 @@ using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Rendering
 {
-    internal static class AlignmentExtensions
+    static class AlignmentExtensions
     {
         public static Alignment Widen(this Alignment alignment, int amount) => new(alignment.Direction, alignment.Width + amount);
     }

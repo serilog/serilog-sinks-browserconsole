@@ -17,7 +17,7 @@ using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Rendering
 {
-    internal static class Padding
+    static class Padding
     {
         /// <summary>
         /// Constructs the output string containing the provided value and

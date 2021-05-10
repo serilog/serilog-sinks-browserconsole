@@ -21,11 +21,11 @@ using Microsoft.AspNetCore.Components;
 
 namespace Serilog.Sinks.BrowserConsole
 {
-    internal sealed class ElementReferenceJsonConverter : JsonConverter<ElementReference>
+    sealed class ElementReferenceJsonConverter : JsonConverter<ElementReference>
     {
-        private static readonly JsonEncodedText IdProperty = JsonEncodedText.Encode("__internalId");
+        static readonly JsonEncodedText IdProperty = JsonEncodedText.Encode("__internalId");
 
-        private readonly ElementReferenceContext _elementReferenceContext;
+        readonly ElementReferenceContext _elementReferenceContext;
 
         public ElementReferenceJsonConverter(ElementReferenceContext elementReferenceContext)
         {

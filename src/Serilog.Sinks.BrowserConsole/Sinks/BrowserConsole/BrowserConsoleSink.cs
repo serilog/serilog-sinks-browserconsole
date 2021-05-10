@@ -20,10 +20,10 @@ using Serilog.Sinks.BrowserConsole.Output;
 
 namespace Serilog.Sinks.BrowserConsole
 {
-    internal class BrowserConsoleSink : ILogEventSink
+    class BrowserConsoleSink : ILogEventSink
     {
-        private readonly IJSRuntime _runtime;
-        private readonly OutputTemplateRenderer _formatter;
+        readonly IJSRuntime _runtime;
+        readonly OutputTemplateRenderer _formatter;
 
         public BrowserConsoleSink(IJSRuntime runtime, OutputTemplateRenderer formatter)
         {
@@ -31,15 +31,15 @@ namespace Serilog.Sinks.BrowserConsole
             _formatter = formatter ?? throw new ArgumentNullException(nameof(formatter));
         }
 
-        public async void Emit(LogEvent logEvent)
+        public void Emit(LogEvent logEvent)
         {
             if (logEvent == null) throw new ArgumentNullException(nameof(logEvent));
             var outputStream = SelectConsoleMethod(logEvent.Level);
             var args = _formatter.Format(logEvent);
-            await _runtime.InvokeAsync<string>(outputStream, args);
+            var _ = _runtime.InvokeAsync<string>(outputStream, args);
         }
 
-        private static string SelectConsoleMethod(LogEventLevel logLevel) =>
+        static string SelectConsoleMethod(LogEventLevel logLevel) =>
             logLevel switch
             {
                 >= LogEventLevel.Error => "console.error",

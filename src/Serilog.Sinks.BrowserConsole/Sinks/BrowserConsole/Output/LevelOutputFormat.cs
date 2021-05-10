@@ -23,9 +23,9 @@ namespace Serilog.Sinks.BrowserConsole.Output
     /// Width is set through formats like "u3" (uppercase three chars),
     /// "w1" (one lowercase char), or "t4" (title case four chars).
     /// </summary>
-    internal static class LevelOutputFormat
+    static class LevelOutputFormat
     {
-        private static readonly string[][] TitleCaseLevelMap =
+        static readonly string[][] TitleCaseLevelMap =
         {
             new[] { "V", "Vb", "Vrb", "Verb" },
             new[] { "D", "De", "Dbg", "Dbug" },
@@ -35,7 +35,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
             new[] { "F", "Fa", "Ftl", "Fatl" }
         };
 
-        private static readonly string[][] LowercaseLevelMap =
+        static readonly string[][] LowercaseLevelMap =
         {
             new[] { "v", "vb", "vrb", "verb" },
             new[] { "d", "de", "dbg", "dbug" },
@@ -45,7 +45,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
             new[] { "f", "fa", "ftl", "fatl" }
         };
 
-        private static readonly string[][] UppercaseLevelMap =
+        static readonly string[][] UppercaseLevelMap =
         {
             new[] { "V", "VB", "VRB", "VERB" },
             new[] { "D", "DE", "DBG", "DBUG" },

@@ -18,20 +18,20 @@ using Serilog.Sinks.BrowserConsole.Rendering;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal class LevelTokenRenderer : OutputTemplateTokenRenderer
+    class LevelTokenRenderer : OutputTemplateTokenRenderer
     {
-        private readonly PropertyToken _levelToken;
+        readonly PropertyToken _levelToken;
 
         public LevelTokenRenderer(PropertyToken levelToken)
         {
             _levelToken = levelToken;
         }
 
-        public override object[] Render(LogEvent logEvent)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             var moniker = LevelOutputFormat.GetLevelMoniker(logEvent.Level, _levelToken.Format);
-            var allignedOutput = Padding.Apply(moniker, _levelToken.Alignment);
-            return new object[] {allignedOutput};
+            var alignedOutput = Padding.Apply(moniker, _levelToken.Alignment);
+            emitToken(alignedOutput);
         }
     }
 }

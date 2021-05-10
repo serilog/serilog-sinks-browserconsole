@@ -19,28 +19,25 @@ using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
+    class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
     {   
-        public override object[] Render(LogEvent logEvent)
-        {            
-            var result = new List<object>();
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        {
             foreach (var token in logEvent.MessageTemplate.Tokens)
             {
                 switch (token)
                 {
                     case TextToken tt:
-                        result.Add(tt.Text);
+                        emitToken(tt.Text);
                         break;
                     case PropertyToken pt:
                         if (logEvent.Properties.TryGetValue(pt.PropertyName, out var propertyValue))
-                            result.Add(ObjectModelInterop.ToInteropValue(propertyValue));
+                            emitToken(ObjectModelInterop.ToInteropValue(propertyValue));
                         break;
                     default:
                         throw new InvalidOperationException();
                 }
             }
-
-            return result.ToArray();         
         }
     }
 }

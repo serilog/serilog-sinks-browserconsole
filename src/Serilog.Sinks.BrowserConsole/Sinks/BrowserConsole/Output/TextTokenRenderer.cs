@@ -16,15 +16,18 @@ using Serilog.Events;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    internal class TextTokenRenderer : OutputTemplateTokenRenderer
+    class TextTokenRenderer : OutputTemplateTokenRenderer
     {
-        private readonly string _text;
+        readonly string _text;
 
         public TextTokenRenderer(string text)
         {
             _text = text;
         }
 
-        public override object[] Render(LogEvent logEvent) => new object[] {_text};
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        {
+            emitToken(_text);
+        }
     }
 }
