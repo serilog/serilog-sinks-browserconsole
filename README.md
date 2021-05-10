@@ -10,8 +10,6 @@ The sink writes log events to the browser console. Unlike the normal Serilog con
 
 ### Getting started
 
-The sink is compatible with .NET 5.0 RC1.
-
 Configure the logging pipeline in `Program.Main()`:
 
 ```csharp
