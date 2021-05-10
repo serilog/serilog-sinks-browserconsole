@@ -10,6 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sln", "sln", "{92992D61-AAE
 		Build.ps1 = Build.ps1
 		LICENSE = LICENSE
 		README.md = README.md
+		global.json = global.json
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B4B852D3-EAD7-40BC-AE0C-2C7FF8E3D9BE}"
