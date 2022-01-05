@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Serilog.Events;
 using Serilog.Formatting.Display;
 using Serilog.Parsing;
@@ -39,12 +40,16 @@ namespace Serilog.Sinks.BrowserConsole.Output
         {
             if (logEvent is null) throw new ArgumentNullException(nameof(logEvent));
 
+            var templateBuilder = new StringBuilder();
             var buffer = new List<object>(_renderers.Length * 2);
             foreach (var renderer in _renderers)
             {
-                renderer.Render(logEvent, buffer.Add);
+                foreach(var consoleToken in renderer.ConsoleArgs(logEvent))
+                {
+                    consoleToken.Render(templateBuilder, buffer.Add);
+                }
             }
-            return buffer.ToArray();
+            return buffer.Prepend(templateBuilder.ToString()).ToArray();
         }
     }
 }

@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
@@ -31,7 +32,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _formatProvider = formatProvider;
         }
 
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
         {
             // We need access to ScalarValue.Render() to avoid this alloc; just ensures
             // that custom format providers are supported properly.
@@ -41,9 +42,9 @@ namespace Serilog.Sinks.BrowserConsole.Output
             var str = buffer.ToString();
 
             if (_token.Alignment is not null)
-                emitToken(Padding.Apply(str, _token.Alignment));
+                yield return ConsoleArgBuilder.String(Padding.Apply(str, _token.Alignment));
             else
-                emitToken(str);
+                yield return ConsoleArgBuilder.String(str);
         }
     }
 }

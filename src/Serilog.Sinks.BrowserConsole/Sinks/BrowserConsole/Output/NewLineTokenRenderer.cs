@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.BrowserConsole.Rendering;
@@ -28,12 +29,12 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _alignment = alignment;
         }
 
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
         {
             if (_alignment is not null)
-                emitToken(Padding.Apply(Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length)));
+                yield return ConsoleArgBuilder.Template(Padding.Apply(Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length)));
             else
-                emitToken(Environment.NewLine);
+                yield return ConsoleArgBuilder.Template(Environment.NewLine);
         }
     }
 }

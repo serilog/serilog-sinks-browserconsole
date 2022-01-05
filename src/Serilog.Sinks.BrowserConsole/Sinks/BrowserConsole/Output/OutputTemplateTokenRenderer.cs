@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using Serilog.Events;
+using System.Collections.Generic;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
@@ -20,6 +21,6 @@ namespace Serilog.Sinks.BrowserConsole.Output
     
     abstract class OutputTemplateTokenRenderer
     {
-        public abstract void Render(LogEvent logEvent, TokenEmitter emitToken);
+        public abstract IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent);
     }
 }

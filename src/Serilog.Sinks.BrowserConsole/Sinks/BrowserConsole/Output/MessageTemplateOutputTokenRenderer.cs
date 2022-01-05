@@ -20,19 +20,23 @@ using Serilog.Parsing;
 namespace Serilog.Sinks.BrowserConsole.Output
 {
     class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
-    {   
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+    {
+        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
         {
             foreach (var token in logEvent.MessageTemplate.Tokens)
             {
                 switch (token)
                 {
                     case TextToken tt:
-                        emitToken(tt.Text);
+                        foreach(var argBuilder in new TextTokenRenderer(tt.Text).ConsoleArgs(logEvent)){
+                            yield return argBuilder;
+                        }
                         break;
                     case PropertyToken pt:
                         if (logEvent.Properties.TryGetValue(pt.PropertyName, out var propertyValue))
-                            emitToken(ObjectModelInterop.ToInteropValue(propertyValue));
+                        {
+                            yield return ConsoleArgBuilder.Object(propertyValue);
+                        }
                         break;
                     default:
                         throw new InvalidOperationException();

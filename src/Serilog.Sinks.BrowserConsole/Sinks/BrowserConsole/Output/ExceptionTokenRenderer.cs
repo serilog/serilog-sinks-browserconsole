@@ -13,16 +13,17 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using Serilog.Events;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
     class ExceptionTokenRenderer : OutputTemplateTokenRenderer
     {
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
         {
             if (logEvent.Exception is not null)
-                emitToken(logEvent.Exception.ToString());
+                yield return ConsoleArgBuilder.String(logEvent.Exception.ToString());
         }
     }
 }

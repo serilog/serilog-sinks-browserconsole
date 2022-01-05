@@ -13,21 +13,48 @@
 // limitations under the License.
 
 using Serilog.Events;
+using System;
+using System.Collections.Generic;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
     class TextTokenRenderer : OutputTemplateTokenRenderer
     {
-        readonly string _text;
+        private readonly string _text;
 
         public TextTokenRenderer(string text)
         {
             _text = text;
         }
 
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
         {
-            emitToken(_text);
+            var textIter = _text;
+            while (!string.IsNullOrEmpty(textIter))
+            {
+                var openTagIndex = textIter.IndexOf("<<");
+                if (openTagIndex == -1) // If no open tag, add full text & exit loop
+                {
+                    yield return ConsoleArgBuilder.Template(textIter);
+                    yield break;
+                }
+                var displayText = textIter[..openTagIndex];
+                yield return ConsoleArgBuilder.Template(displayText);
+
+                var closeTagIndex = textIter.IndexOf(">>", openTagIndex);
+                if (closeTagIndex == -1)
+                {
+                    throw new FormatException("Open tag found without close tag");
+                }
+                var styleContent = textIter[(openTagIndex + 2)..closeTagIndex];
+                if (styleContent.Trim() == "_")
+                {
+                    styleContent = "";
+                }
+                yield return ConsoleArgBuilder.Style(styleContent);
+
+                textIter = textIter[(closeTagIndex + 2)..];
+            }
         }
     }
 }

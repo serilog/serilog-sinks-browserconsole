@@ -28,7 +28,7 @@ namespace Serilog
     public static class LoggerConfigurationBrowserConsoleExtensions
     {
         const string SerilogToken =
-            "%cserilog{_}color:white;background:#8c7574;border-radius:3px;padding:1px 2px;font-weight:600;";
+            "<<color:white;background:#8c7574;border-radius:3px;padding:1px 2px;font-weight:600;>>serilog<<_>>";
             
         const string DefaultConsoleOutputTemplate = SerilogToken + "{Message}{NewLine}{Exception}";
         
