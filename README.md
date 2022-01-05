@@ -33,3 +33,5 @@ Example:
 ```
 <<color: red;>>{Level}<<_>>: {Message}
 ```
+
+You can also define styles for tokens via the `tokenStyles` dictionary.
