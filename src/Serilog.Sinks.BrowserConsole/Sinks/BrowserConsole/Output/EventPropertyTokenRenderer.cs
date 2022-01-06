@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Serilog.Events;
 using Serilog.Parsing;
@@ -32,16 +31,14 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _formatProvider = formatProvider;
         }
 
-        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             // If a property is missing, don't render anything (message templates render the raw token here).
             if (!logEvent.Properties.TryGetValue(_token.PropertyName, out var propertyValue))
             {
                 if (_token.Alignment is not null)
-                {
-                    yield return ConsoleArgBuilder.Template(Padding.Apply(string.Empty, _token.Alignment));
-                }
-                yield break;
+                    emitToken(SConsoleToken.String(Padding.Apply(string.Empty, _token.Alignment)));
+                return;
             }
 
             var writer = new StringWriter();
@@ -60,9 +57,9 @@ namespace Serilog.Sinks.BrowserConsole.Output
 
             var str = writer.ToString();
             if (_token.Alignment is not null)
-                yield return ConsoleArgBuilder.String(Padding.Apply(str, _token.Alignment));
+                emitToken(SConsoleToken.String(Padding.Apply(str, _token.Alignment)));
             else
-                yield return ConsoleArgBuilder.String(str);
+                emitToken(SConsoleToken.String(str));
         }
     }
 }

@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using Serilog.Events;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    class ExceptionTokenRenderer : OutputTemplateTokenRenderer
+    class StyleTokenRenderer : OutputTemplateTokenRenderer
     {
+        private readonly string _style;
+
+        public StyleTokenRenderer(string style)
+        {
+            _style = style;
+        }
+
         public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
-            if (logEvent.Exception is not null)
-                emitToken(SConsoleToken.String(logEvent.Exception.ToString()));
+            emitToken(SConsoleToken.Style(_style));
         }
     }
 }

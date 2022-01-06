@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Collections.Generic;
 using System.Linq;
 using Serilog.Events;
 using Serilog.Parsing;
@@ -29,7 +28,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _token = token;
         }
 
-        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             var included = logEvent.Properties
                 .Where(p => !TemplateContainsPropertyName(logEvent.MessageTemplate, p.Key) &&
@@ -38,7 +37,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
 
             foreach (var property in included)
             {
-                yield return ConsoleArgBuilder.Object(property.Value, _token.Format);
+                emitToken(SConsoleToken.Object(property.Value, _token.Format));
             }
         }
 

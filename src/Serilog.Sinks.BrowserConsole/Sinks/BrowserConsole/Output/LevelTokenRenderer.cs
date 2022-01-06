@@ -15,7 +15,6 @@
 using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.BrowserConsole.Rendering;
-using System.Collections.Generic;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
@@ -28,11 +27,11 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _levelToken = levelToken;
         }
 
-        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             var moniker = LevelOutputFormat.GetLevelMoniker(logEvent.Level, _levelToken.Format);
             var alignedOutput = Padding.Apply(moniker, _levelToken.Alignment);
-            yield return ConsoleArgBuilder.String(alignedOutput);
+            emitToken(SConsoleToken.String(alignedOutput));
         }
     }
 }

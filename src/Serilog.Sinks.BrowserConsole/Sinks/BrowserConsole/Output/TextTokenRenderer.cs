@@ -14,7 +14,6 @@
 
 using Serilog.Events;
 using System;
-using System.Collections.Generic;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
@@ -27,7 +26,13 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _text = text;
         }
 
-        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
+        /// <summary>
+        /// Generate console tokens for the given string. Style arguments are passed under the format <code>Base text &lt;&lt;style: css;&gt;&gt;Formatted text&lt;&lt;_&gt;&gt; Unformatted text</code>
+        /// </summary>
+        /// <param name="logEvent">The log event to format</param>
+        /// <param name="emitToken">A function yielding console arguments</param>
+        /// <exception cref="FormatException">Thrown if an open style tag is found, but no closing</exception>
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             var textIter = _text;
             while (!string.IsNullOrEmpty(textIter))
@@ -35,11 +40,11 @@ namespace Serilog.Sinks.BrowserConsole.Output
                 var openTagIndex = textIter.IndexOf("<<");
                 if (openTagIndex == -1) // If no open tag, add full text & exit loop
                 {
-                    yield return ConsoleArgBuilder.Template(textIter);
-                    yield break;
+                    emitToken(SConsoleToken.Template(textIter));
+                    return;
                 }
                 var displayText = textIter[..openTagIndex];
-                yield return ConsoleArgBuilder.Template(displayText);
+                emitToken(SConsoleToken.Template(displayText));
 
                 var closeTagIndex = textIter.IndexOf(">>", openTagIndex);
                 if (closeTagIndex == -1)
@@ -51,7 +56,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
                 {
                     styleContent = "";
                 }
-                yield return ConsoleArgBuilder.Style(styleContent);
+                emitToken(SConsoleToken.Style(styleContent));
 
                 textIter = textIter[(closeTagIndex + 2)..];
             }

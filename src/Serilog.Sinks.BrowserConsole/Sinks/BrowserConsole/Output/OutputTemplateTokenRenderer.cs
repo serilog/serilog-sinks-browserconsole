@@ -13,14 +13,13 @@
 // limitations under the License.
 
 using Serilog.Events;
-using System.Collections.Generic;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    delegate void TokenEmitter(object token);
+    delegate void TokenEmitter(SConsoleToken token);
     
     abstract class OutputTemplateTokenRenderer
     {
-        public abstract IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent);
+        public abstract void Render(LogEvent logEvent, TokenEmitter emitToken);
     }
 }

@@ -21,52 +21,54 @@ namespace Serilog.Sinks.BrowserConsole.Output
                 .SelectMany(token => token switch
                 {
                     TextToken tt => new[] { new TextTokenRenderer(tt.Text) },
-                    PropertyToken pt => WrapStyle(pt, tokenStyles, pt.PropertyName switch
-                    {
-                        OutputProperties.LevelPropertyName => new LevelTokenRenderer(pt),
-                        OutputProperties.NewLinePropertyName => new NewLineTokenRenderer(pt.Alignment),
-                        OutputProperties.ExceptionPropertyName => new ExceptionTokenRenderer(),
-                        OutputProperties.MessagePropertyName => new MessageTemplateOutputTokenRenderer(),
-                        OutputProperties.TimestampPropertyName => new TimestampTokenRenderer(pt, formatProvider),
-                        OutputProperties.PropertiesPropertyName => new PropertiesTokenRenderer(pt, template),
-                        _ => new EventPropertyTokenRenderer(pt, formatProvider)
-                    }),
+                    PropertyToken pt => WrapTokenStyle(
+                        tokenStyles.GetValueOrDefault(pt.PropertyName),
+                        pt.PropertyName switch
+                        {
+                            OutputProperties.LevelPropertyName => new LevelTokenRenderer(pt),
+                            OutputProperties.NewLinePropertyName => new NewLineTokenRenderer(pt.Alignment),
+                            OutputProperties.ExceptionPropertyName => new ExceptionTokenRenderer(),
+                            OutputProperties.MessagePropertyName => new MessageTemplateOutputTokenRenderer(),
+                            OutputProperties.TimestampPropertyName => new TimestampTokenRenderer(pt, formatProvider),
+                            OutputProperties.PropertiesPropertyName => new PropertiesTokenRenderer(pt, template),
+                            _ => new EventPropertyTokenRenderer(pt, formatProvider)
+                        }),
                     _ => throw new InvalidOperationException()
                 })
                 .ToArray();
         }
 
-        private IEnumerable<OutputTemplateTokenRenderer> WrapStyle(PropertyToken token, IReadOnlyDictionary<string, string> tokenStyles, OutputTemplateTokenRenderer renderer)
-        {
-            if (tokenStyles?.TryGetValue(token.PropertyName, out var style) ?? false)
-            {
-                return new[]
+        private static IEnumerable<OutputTemplateTokenRenderer> WrapTokenStyle(string style, OutputTemplateTokenRenderer renderer) =>
+            style != null ?
+                new[]
                 {
-                    new TextTokenRenderer($"<<{style}>>"),
-                    renderer,
-                    new TextTokenRenderer("<<_>>")
-                };
-            }
-            else
-            {
-                return new[] { renderer };
-            }
-        }
+                        new StyleTokenRenderer(style),
+                        renderer,
+                        new StyleTokenRenderer("")
+                } :
+                new[] { renderer };
 
         public object[] Format(LogEvent logEvent)
         {
             if (logEvent is null) throw new ArgumentNullException(nameof(logEvent));
 
-            var templateBuilder = new StringBuilder();
-            var buffer = new List<object>(_renderers.Length * 2);
+            var buffer = new List<SConsoleToken>(_renderers.Length * 2);
             foreach (var renderer in _renderers)
             {
-                foreach (var consoleToken in renderer.ConsoleArgs(logEvent))
+                renderer.Render(logEvent, buffer.Add);
+            }
+
+            var templateBuilder = new StringBuilder();
+            var argsList = new List<object>(buffer.Count);
+            foreach (var token in buffer)
+            {
+                templateBuilder.Append(token.TemplateStr);
+                if (token.Arg is not null)
                 {
-                    consoleToken.Render(templateBuilder, buffer.Add);
+                    argsList.Add(token.Arg.Value);
                 }
             }
-            return buffer.Prepend(templateBuilder.ToString()).ToArray();
+            return new object[] { templateBuilder.ToString() }.Concat(argsList).ToArray();
         }
     }
 }

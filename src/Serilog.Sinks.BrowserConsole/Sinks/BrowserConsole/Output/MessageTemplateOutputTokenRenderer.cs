@@ -13,7 +13,6 @@
 // limitations under the License.
 
 using System;
-using System.Collections.Generic;
 using Serilog.Events;
 using Serilog.Parsing;
 
@@ -21,22 +20,18 @@ namespace Serilog.Sinks.BrowserConsole.Output
 {
     class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
     {
-        public override IEnumerable<ConsoleArgBuilder> ConsoleArgs(LogEvent logEvent)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             foreach (var token in logEvent.MessageTemplate.Tokens)
             {
                 switch (token)
                 {
                     case TextToken tt:
-                        foreach(var argBuilder in new TextTokenRenderer(tt.Text).ConsoleArgs(logEvent)){
-                            yield return argBuilder;
-                        }
+                        new TextTokenRenderer(tt.Text).Render(logEvent, emitToken);
                         break;
                     case PropertyToken pt:
                         if (logEvent.Properties.TryGetValue(pt.PropertyName, out var propertyValue))
-                        {
-                            yield return ConsoleArgBuilder.Object(propertyValue);
-                        }
+                            emitToken(SConsoleToken.Object(propertyValue));
                         break;
                     default:
                         throw new InvalidOperationException();
