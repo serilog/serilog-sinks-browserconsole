@@ -18,6 +18,8 @@ namespace Serilog.Sinks.BrowserConsole.Output
 {
     class StyleTokenRenderer : OutputTemplateTokenRenderer
     {
+        public static readonly StyleTokenRenderer Reset = new("");
+
         private readonly string _style;
 
         public StyleTokenRenderer(string style)
