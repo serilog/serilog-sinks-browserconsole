@@ -27,10 +27,10 @@ namespace Serilog.Sinks.BrowserConsole.Tests
         [Fact]
         public void SupportsStylingWithTimestamp()
         {
-            var date = DateTimeOffset.Now;
+            var NOW = DateTimeOffset.Now;
             var formatter = new OutputTemplateRenderer($"<<{STYLE1}>>Hello<<_>> <<{STYLE2}>>{{{OutputProperties.TimestampPropertyName}:HH:mm}}<<_>>", default);
-            var args = formatter.Format(new LogEvent(date, LogEventLevel.Verbose, null, MessageTemplate.Empty, Array.Empty<LogEventProperty>()));
-            Assert.Equal(new object[] { $"%cHello%c %c%s%c", STYLE1, "", STYLE2, date.ToString("HH:mm"), "" }, args);
+            var args = formatter.Format(new LogEvent(NOW, LogEventLevel.Verbose, null, MessageTemplate.Empty, Array.Empty<LogEventProperty>()));
+            Assert.Equal(new object[] { $"%cHello%c %c%s%c", STYLE1, "", STYLE2, NOW.ToString("HH:mm"), "" }, args);
         }
 
         [Fact]
@@ -107,6 +107,22 @@ namespace Serilog.Sinks.BrowserConsole.Tests
             var formatter = new OutputTemplateRenderer($"<<{STYLE1}>>A first<<_>> % sign <<{STYLE2}>>{{{OutputProperties.MessagePropertyName}}}<<_>>", default);
             var args = formatter.Format(new LogEvent(DateTimeOffset.Now, LogEventLevel.Verbose, null, new MessageTemplateParser().Parse(MESSAGE), Array.Empty<LogEventProperty>()));
             Assert.Equal(new object[] { $"%cA first%c %% sign %c{MESSAGE.Replace($"%", "%%")}%c", STYLE1, "", STYLE2, "" }, args);
+        }
+
+        [Fact]
+        public void SupportsTokenStyling()
+        {
+            var MESSAGE = $"Test";
+            var LEVEL = LogEventLevel.Verbose;
+            var NOW = DateTimeOffset.Now;
+            var formatter = new OutputTemplateRenderer($"{{{OutputProperties.LevelPropertyName}}}@{{{OutputProperties.TimestampPropertyName}:HH:mm}}: {{{OutputProperties.MessagePropertyName}}}", default, new Dictionary<string, string>
+            {
+                {OutputProperties.LevelPropertyName, STYLE1 },
+                {OutputProperties.TimestampPropertyName, STYLE2 },
+                {OutputProperties.MessagePropertyName, STYLE3 }
+            });
+            var args = formatter.Format(new LogEvent(NOW, LEVEL, null, new MessageTemplateParser().Parse(MESSAGE), Array.Empty<LogEventProperty>()));
+            Assert.Equal(new object[] { $"%c%s%c@%c%s%c: %c{MESSAGE}%c", STYLE1, LEVEL.ToString(), "", STYLE2, NOW.ToString("HH:mm"), "", STYLE3, "" }, args);
         }
     }
 }
