@@ -35,7 +35,15 @@ namespace Serilog.Sinks.BrowserConsole.Output
                         break;
                     case PropertyToken pt:
                         if (logEvent.Properties.TryGetValue(pt.PropertyName, out var propertyValue))
-                            emitToken(SConsoleToken.Object(propertyValue));
+                            new PropertyTokenRenderer(pt, propertyValue).Render(logEvent, token => {
+                                if(token.TemplateStr == "%o") // Object placeholders break styles
+                                {
+                                    emitToken(SConsoleToken.Style(""));
+                                    emitToken(token);
+                                    emitToken(SConsoleToken.Style(string.Join(';', innerStyleContext)));
+                                } else
+                                    emitToken(token);
+                            });
                         break;
                     default:
                         throw new InvalidOperationException();

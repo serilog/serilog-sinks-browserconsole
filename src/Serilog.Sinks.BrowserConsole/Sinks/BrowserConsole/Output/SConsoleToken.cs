@@ -17,7 +17,9 @@ namespace Serilog.Sinks.BrowserConsole.Output
 
         public static SConsoleToken Style(string style) => new("%c", new ScalarValue(style));
         public static SConsoleToken Template(string rawText) => new(rawText.Replace("%", "%%"));
-        public static SConsoleToken String(string @string) => new("%s", new ScalarValue(@string));
+        public static SConsoleToken String(object @string) => new("%s", new ScalarValue(@string));
+        public static SConsoleToken Integer(object @int) => new("%d", new ScalarValue(@int));
+        public static SConsoleToken Float(object @float) => new("%f", new ScalarValue(@float));
         public static SConsoleToken Object(LogEventPropertyValue value, string format = default) => new("%o", new ScalarValue(ObjectModelInterop.ToInteropValue(value, format)));
     }
 }
