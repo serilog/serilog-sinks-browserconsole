@@ -14,10 +14,12 @@
 
 using Serilog.Events;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    class TextTokenRenderer : OutputTemplateTokenRenderer
+    class TextTokenRenderer : OutputTemplateTokenRenderer, IInheritStyle
     {
         private readonly string _text;
 
@@ -26,22 +28,25 @@ namespace Serilog.Sinks.BrowserConsole.Output
             _text = text;
         }
 
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken) => Render(logEvent, emitToken, new List<string>());
         /// <summary>
         /// Generate console tokens for the given string. Style arguments are passed under the format <code>Base text &lt;&lt;style: css;&gt;&gt;Formatted text&lt;&lt;_&gt;&gt; Unformatted text</code>
         /// </summary>
         /// <param name="logEvent">The log event to format</param>
         /// <param name="emitToken">A function yielding console arguments</param>
+        /// <param name="styleContext">TODO</param>
         /// <exception cref="FormatException">Thrown if an open style tag is found, but no closing</exception>
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        public void Render(LogEvent logEvent, TokenEmitter emitToken, List<string> styleContext)
         {
             var textIter = _text;
+            var selfStyleContext = styleContext.ToList();
             while (!string.IsNullOrEmpty(textIter))
             {
                 var openTagIndex = textIter.IndexOf("<<");
                 if (openTagIndex == -1) // If no open tag, add full text & exit loop
                 {
                     emitToken(SConsoleToken.Template(textIter));
-                    return;
+                    break;
                 }
                 var displayText = textIter[..openTagIndex];
                 emitToken(SConsoleToken.Template(displayText));
@@ -51,15 +56,26 @@ namespace Serilog.Sinks.BrowserConsole.Output
                 {
                     throw new FormatException("Open tag found without close tag");
                 }
-                var styleContent = textIter[(openTagIndex + 2)..closeTagIndex];
-                if (styleContent.Trim() == "_")
+                var styleContentComponents = textIter[(openTagIndex + 2)..closeTagIndex].Trim().Split(';', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                var styleContentOut = new List<string>(styleContentComponents.Count());
+                foreach (var styleContent in styleContentComponents)
                 {
-                    styleContent = "";
+                    if (styleContent == "__")
+                        selfStyleContext = styleContext.ToList();
+                    else if (styleContent == "_")
+                        selfStyleContext.RemoveAt(selfStyleContext.Count - 1);
+                    else
+                        styleContentOut.Add(styleContent);
                 }
-                emitToken(SConsoleToken.Style(styleContent));
+
+                if (styleContentOut.Any())
+                    selfStyleContext.Add(string.Join(';', styleContentOut));
+                emitToken(SConsoleToken.Style(string.Join(';', selfStyleContext)));
 
                 textIter = textIter[(closeTagIndex + 2)..];
             }
+            styleContext.RemoveRange(0, styleContext.Count);
+            styleContext.AddRange(selfStyleContext);
         }
     }
 }

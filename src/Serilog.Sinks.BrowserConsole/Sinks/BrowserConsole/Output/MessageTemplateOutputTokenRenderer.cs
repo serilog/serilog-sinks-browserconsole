@@ -13,21 +13,25 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Serilog.Events;
 using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
+    class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer, IInheritStyle
     {
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken) => Render(logEvent, emitToken, new List<string>());
+        public void Render(LogEvent logEvent, TokenEmitter emitToken, List<string> styleContext)
         {
+            var innerStyleContext = styleContext.ToList();
             foreach (var token in logEvent.MessageTemplate.Tokens)
             {
                 switch (token)
                 {
                     case TextToken tt:
-                        new TextTokenRenderer(tt.Text).Render(logEvent, emitToken);
+                        new TextTokenRenderer(tt.Text).Render(logEvent, emitToken, innerStyleContext);
                         break;
                     case PropertyToken pt:
                         if (logEvent.Properties.TryGetValue(pt.PropertyName, out var propertyValue))

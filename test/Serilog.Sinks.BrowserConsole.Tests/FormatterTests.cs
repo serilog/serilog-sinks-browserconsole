@@ -11,11 +11,11 @@ using Xunit;
 
 namespace Serilog.Sinks.BrowserConsole.Tests
 {
-    public class FormatterTests
+    public class StyleFormatterTests
     {
-        const string STYLE1 = "color: red;";
-        const string STYLE2 = "color: blue;";
-        const string STYLE3 = "color: purple;";
+        const string STYLE1 = "s1";
+        const string STYLE2 = "s2";
+        const string STYLE3 = "s3";
         [Fact]
         public void SupportsStylingSimple()
         {
@@ -97,7 +97,7 @@ namespace Serilog.Sinks.BrowserConsole.Tests
             var MESSAGE = $"and <<{STYLE3}>>welcome";
             var formatter = new OutputTemplateRenderer($"<<{STYLE1}>>Hello<<_>> <<{STYLE2}>>{{{OutputProperties.MessagePropertyName}}}<<_>>", default);
             var args = formatter.Format(new LogEvent(DateTimeOffset.Now, LogEventLevel.Verbose, null, new MessageTemplateParser().Parse(MESSAGE), Array.Empty<LogEventProperty>()));
-            Assert.Equal(new object[] { $"%cHello%c %c{MESSAGE.Replace($"<<{STYLE3}>>", "%c")}%c", STYLE1, "", STYLE2, STYLE3, "" }, args);
+            Assert.Equal(new object[] { $"%cHello%c %c{MESSAGE.Replace($"<<{STYLE3}>>", "%c")}%c", STYLE1, "", STYLE2, STYLE2 + ";" + STYLE3, "" }, args);
         }
 
         [Fact]
@@ -123,6 +123,57 @@ namespace Serilog.Sinks.BrowserConsole.Tests
             });
             var args = formatter.Format(new LogEvent(NOW, LEVEL, null, new MessageTemplateParser().Parse(MESSAGE), Array.Empty<LogEventProperty>()));
             Assert.Equal(new object[] { $"%c%s%c@%c%s%c: %c{MESSAGE}%c", STYLE1, LEVEL.ToString(), "", STYLE2, NOW.ToString("HH:mm"), "", STYLE3, "" }, args);
+        }
+
+        [Fact]
+        public void SupportsStylingInheritance1()
+        {
+            var MESSAGE = $"2 <<{STYLE3}>>{{Prop}}<<_>> 3";
+            var PROP_VALUE = "INJECTED PROP";
+            var formatter = new OutputTemplateRenderer($"<<{STYLE1}>>1<<_>> <<{STYLE2}>>{{{OutputProperties.MessagePropertyName}}}<<_>>", default);
+            var args = formatter.Format(new LogEvent(DateTimeOffset.Now, LogEventLevel.Verbose, null, new MessageTemplateParser().Parse(MESSAGE), new[] {
+                new LogEventProperty("Prop", new ScalarValue(PROP_VALUE))
+            }));
+            Assert.Equal(new object[] { $"%c1%c %c2 %c%o%c 3%c", STYLE1, "", STYLE2, STYLE2 + ";" + STYLE3, PROP_VALUE, STYLE2, "" }, args);
+        }
+
+        [Fact]
+        public void SupportsStylingInheritance2()
+        {
+            var MESSAGE = $"1 <<{STYLE2}>>{{Prop}}<<_;{STYLE3}>> 3 <<_>> 4";
+            var PROP_VALUE = "INJECTED PROP";
+            var formatter = new OutputTemplateRenderer($"<<{STYLE1}>>{{{OutputProperties.MessagePropertyName}}}<<_>>", default);
+            var args = formatter.Format(new LogEvent(DateTimeOffset.Now, LogEventLevel.Verbose, null, new MessageTemplateParser().Parse(MESSAGE), new[] {
+                new LogEventProperty("Prop", new ScalarValue(PROP_VALUE))
+            }));
+            Assert.Equal(new object[] { $"%c1 %c%o%c 3 %c 4%c", STYLE1, STYLE1 + ";" + STYLE2, PROP_VALUE, STYLE1 + ";" + STYLE3, STYLE1, "" }, args);
+        }
+
+        [Fact]
+        public void SupportsStylingInheritance3()
+        {
+            var MESSAGE = $"1 <<{STYLE2}>>{{Prop}}<<_;{STYLE3}>> 3 <<_>> 4";
+            var PROP_VALUE = "INJECTED PROP";
+            var formatter = new OutputTemplateRenderer($"{{{OutputProperties.MessagePropertyName}}}", default, new Dictionary<string, string>
+            {
+                {OutputProperties.MessagePropertyName, STYLE1 },
+            });
+            var args = formatter.Format(new LogEvent(DateTimeOffset.Now, LogEventLevel.Verbose, null, new MessageTemplateParser().Parse(MESSAGE), new[] {
+                new LogEventProperty("Prop", new ScalarValue(PROP_VALUE))
+            }));
+            Assert.Equal(new object[] { $"%c1 %c%o%c 3 %c 4%c", STYLE1, STYLE1 + ";" + STYLE2, PROP_VALUE, STYLE1 + ";" + STYLE3, STYLE1, "" }, args);
+        }
+
+        [Fact]
+        public void SupportsStylingInheritance4()
+        {
+            var MESSAGE = $"<<{STYLE1}>>1 {{Prop}}<<_>>";
+            var PROP_VALUE = "INJECTED PROP";
+            var formatter = new OutputTemplateRenderer($"{{{OutputProperties.MessagePropertyName}}}", default);
+            var args = formatter.Format(new LogEvent(DateTimeOffset.Now, LogEventLevel.Verbose, null, new MessageTemplateParser().Parse(MESSAGE), new[] {
+                new LogEventProperty("Prop", new ScalarValue(PROP_VALUE))
+            }));
+            Assert.Equal(new object[] { $"%c1 %o%c", STYLE1, PROP_VALUE, "" }, args);
         }
     }
 }

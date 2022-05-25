@@ -13,23 +13,44 @@
 // limitations under the License.
 
 using Serilog.Events;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    class StyleTokenRenderer : OutputTemplateTokenRenderer
+    interface IInheritStyle
     {
-        public static readonly StyleTokenRenderer Reset = new("");
+        public void Render(LogEvent logEvent, TokenEmitter emitToken, List<string> styleContext);
+    }
+    class StyleTokenRenderer : OutputTemplateTokenRenderer, IInheritStyle
+    {
+        public static readonly StyleTokenRenderer Reset = new(null);
 
-        private readonly string _style;
+        public readonly string style;
 
         public StyleTokenRenderer(string style)
         {
-            _style = style;
+            this.style = style?.Trim();
         }
 
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken) => Render(logEvent, emitToken, new List<string>());
+        public void Render(LogEvent logEvent, TokenEmitter emitToken, List<string> styleContext)
         {
-            emitToken(SConsoleToken.Style(_style));
+            emitToken(SConsoleToken.Style(string.Join(';', ApplyOnContext(styleContext))));
+        }
+
+        /// <summary>
+        /// Modify the style context to add or remove this renderer's style.
+        /// </summary>
+        /// <param name="styleContext">The style context to alter.</param>
+        /// <returns>the modified style context. Note that it is the same instance as <paramref name="styleContext"/></returns>
+        public List<string> ApplyOnContext(List<string> styleContext)
+        {
+            if (string.IsNullOrEmpty(style))
+                styleContext.RemoveAt(styleContext.Count - 1);
+            else
+                styleContext.Add(style);
+            return styleContext;
         }
     }
 }

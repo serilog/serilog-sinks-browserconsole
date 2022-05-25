@@ -52,27 +52,36 @@ namespace Serilog.Sinks.BrowserConsole.Output
         {
             if (logEvent is null) throw new ArgumentNullException(nameof(logEvent));
 
-            // Collect tokens. Tokens contains the string to append to the `console.log` 1st argument (like a plain string, or `%c` for styles), and the argument to push after.
-            var tokensBuffer = new List<SConsoleToken>(_renderers.Length * 2);
-            foreach (var renderer in _renderers)
+            try
             {
-                renderer.Render(logEvent, tokensBuffer.Add);
-            }
-
-            // Now that we have all tokens, build the full `console.log("TEMPLATE", ...args)` template & args list.
-            var templateBuilder = new StringBuilder();
-            var argsList = new List<object>(tokensBuffer.Count);
-            foreach (var token in tokensBuffer)
-            {
-                templateBuilder.Append(token.TemplateStr);
-                // Some tokens might not have an argument to push to `console.log`.
-                if (token.Arg is not null)
+                // Collect tokens. Tokens contains the string to append to the `console.log` 1st argument (like a plain string, or `%c` for styles), and the argument to push after.
+                var tokensBuffer = new List<SConsoleToken>(_renderers.Length * 2);
+                var styleContext = new List<string>(); // LIFO list of styles applied.
+                foreach (var renderer in _renderers)
                 {
-                    argsList.Add(token.Arg.Value);
+                    if (renderer is IInheritStyle inheritStyleRenderer)
+                        inheritStyleRenderer.Render(logEvent, tokensBuffer.Add, styleContext);
+                    else
+                        renderer.Render(logEvent, tokensBuffer.Add);
                 }
+
+                // Now that we have all tokens, build the full `console.log("TEMPLATE", ...args)` template & args list.
+                var templateBuilder = new StringBuilder();
+                var argsList = new List<object>(tokensBuffer.Count);
+                foreach (var token in tokensBuffer)
+                {
+                    templateBuilder.Append(token.TemplateStr);
+                    // Some tokens might not have an argument to push to `console.log`.
+                    if (token.Arg is not null)
+                        argsList.Add(token.Arg.Value);
+                }
+                // Return the full arguments list.
+                return new object[] { templateBuilder.ToString() }.Concat(argsList).ToArray();
             }
-            // Return the full arguments list.
-            return new object[] { templateBuilder.ToString() }.Concat(argsList).ToArray();
+            catch (Exception e)
+            {
+                return new object[] { "Error during parsing of output template: %o", e }.ToArray();
+            }
         }
     }
 }
