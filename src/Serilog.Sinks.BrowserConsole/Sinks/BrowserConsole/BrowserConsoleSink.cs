@@ -45,6 +45,8 @@ namespace Serilog.Sinks.BrowserConsole
                 >= LogEventLevel.Error => "console.error",
                 LogEventLevel.Warning => "console.warn",
                 LogEventLevel.Information => "console.info",
+                LogEventLevel.Debug => "console.debug",
+                LogEventLevel.Verbose => "console.trace",
                 _ => "console.log"
             };
     }
