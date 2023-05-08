@@ -41,9 +41,9 @@ namespace Serilog.Sinks.BrowserConsole.Output
             var str = buffer.ToString();
 
             if (_token.Alignment is not null)
-                emitToken(Padding.Apply(str, _token.Alignment));
+                emitToken(SConsoleToken.String(Padding.Apply(str, _token.Alignment)));
             else
-                emitToken(str);
+                emitToken(SConsoleToken.String(str));
         }
     }
 }

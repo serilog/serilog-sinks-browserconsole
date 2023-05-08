@@ -31,9 +31,9 @@ namespace Serilog.Sinks.BrowserConsole.Output
         public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             if (_alignment is not null)
-                emitToken(Padding.Apply(Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length)));
+                emitToken(SConsoleToken.Template(Padding.Apply(Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length))));
             else
-                emitToken(Environment.NewLine);
+                emitToken(SConsoleToken.Template(Environment.NewLine));
         }
     }
 }

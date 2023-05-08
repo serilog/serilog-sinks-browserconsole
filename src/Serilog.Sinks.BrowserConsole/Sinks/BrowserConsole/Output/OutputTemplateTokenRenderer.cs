@@ -16,7 +16,7 @@ using Serilog.Events;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    delegate void TokenEmitter(object token);
+    delegate void TokenEmitter(SConsoleToken token);
     
     abstract class OutputTemplateTokenRenderer
     {

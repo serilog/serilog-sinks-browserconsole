@@ -31,7 +31,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
         {
             var moniker = LevelOutputFormat.GetLevelMoniker(logEvent.Level, _levelToken.Format);
             var alignedOutput = Padding.Apply(moniker, _levelToken.Alignment);
-            emitToken(alignedOutput);
+            emitToken(SConsoleToken.String(alignedOutput));
         }
     }
 }

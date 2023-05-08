@@ -23,3 +23,15 @@ Log.Information("Hello, browser!");
 ```
 
 A more detailed example is available [in this repository](https://github.com/serilog/serilog-sinks-browserconsole/tree/dev/example/ExampleClient).
+
+### Styling your stuff
+
+In your sink's `outputTemplate` parameter, you can leverage [`console.log` styling capabilities](https://developer.mozilla.org/en-US/docs/Web/API/console#styling_console_output) by using the `<<...>>` placeholder. Use `<<_>>` to reset styles to defaults.
+
+Example:
+
+```
+<<color: red;>>{Level}<<_>>: {Message}
+```
+
+You can also define styles for tokens via the `tokenStyles` dictionary.

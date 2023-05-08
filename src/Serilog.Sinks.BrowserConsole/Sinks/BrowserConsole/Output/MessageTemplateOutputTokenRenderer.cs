@@ -14,25 +14,36 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Serilog.Events;
 using Serilog.Parsing;
 
 namespace Serilog.Sinks.BrowserConsole.Output
 {
-    class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
-    {   
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+    class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer, IInheritStyle
+    {
+        public override void Render(LogEvent logEvent, TokenEmitter emitToken) => Render(logEvent, emitToken, new List<string>());
+        public void Render(LogEvent logEvent, TokenEmitter emitToken, List<string> styleContext)
         {
+            var innerStyleContext = styleContext.ToList();
             foreach (var token in logEvent.MessageTemplate.Tokens)
             {
                 switch (token)
                 {
                     case TextToken tt:
-                        emitToken(tt.Text);
+                        new TextTokenRenderer(tt.Text).Render(logEvent, emitToken, innerStyleContext);
                         break;
                     case PropertyToken pt:
                         if (logEvent.Properties.TryGetValue(pt.PropertyName, out var propertyValue))
-                            emitToken(ObjectModelInterop.ToInteropValue(propertyValue));
+                            new PropertyTokenRenderer(pt, propertyValue).Render(logEvent, token => {
+                                if(token.TemplateStr == "%o") // Object placeholders break styles
+                                {
+                                    emitToken(SConsoleToken.Style(""));
+                                    emitToken(token);
+                                    emitToken(SConsoleToken.Style(string.Join(';', innerStyleContext)));
+                                } else
+                                    emitToken(token);
+                            });
                         break;
                     default:
                         throw new InvalidOperationException();

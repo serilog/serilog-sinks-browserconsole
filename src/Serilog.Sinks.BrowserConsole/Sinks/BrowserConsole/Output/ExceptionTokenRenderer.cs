@@ -13,6 +13,7 @@
 // limitations under the License.
 
 using System;
+using System.Collections.Generic;
 using Serilog.Events;
 
 namespace Serilog.Sinks.BrowserConsole.Output
@@ -22,7 +23,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
         public override void Render(LogEvent logEvent, TokenEmitter emitToken)
         {
             if (logEvent.Exception is not null)
-                emitToken(logEvent.Exception.ToString());
+                emitToken(SConsoleToken.String(logEvent.Exception.ToString()));
         }
     }
 }

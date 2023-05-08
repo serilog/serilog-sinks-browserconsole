@@ -36,9 +36,7 @@ namespace Serilog.Sinks.BrowserConsole.Output
                 .Select(p => new LogEventProperty(p.Key, p.Value));
 
             foreach (var property in included)
-            {
-                emitToken(ObjectModelInterop.ToInteropValue(property.Value, _token.Format));
-            }
+                new PropertyTokenRenderer(_token, property.Value).Render(logEvent, emitToken);
         }
 
         static bool TemplateContainsPropertyName(MessageTemplate template, string propertyName)
