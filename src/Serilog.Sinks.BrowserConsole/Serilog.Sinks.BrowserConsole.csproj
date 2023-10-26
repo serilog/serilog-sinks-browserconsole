@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <VersionPrefix>2.0.0</VersionPrefix>
+    <VersionPrefix>2.0.1</VersionPrefix>
     <RootNamespace>Serilog</RootNamespace>
     <Description>Simple .NET logging with fully-structured events</Description>
     <Authors>Serilog Contributors</Authors>
