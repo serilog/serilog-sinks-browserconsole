@@ -12,31 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Collections.Generic;
 using Serilog.Events;
 using Serilog.Parsing;
 
-namespace Serilog.Sinks.BrowserConsole.Output
-{
-    class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
-    {   
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+namespace Serilog.Sinks.BrowserConsole.Output;
+
+class MessageTemplateOutputTokenRenderer : OutputTemplateTokenRenderer
+{   
+    public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+    {
+        foreach (var token in logEvent.MessageTemplate.Tokens)
         {
-            foreach (var token in logEvent.MessageTemplate.Tokens)
+            switch (token)
             {
-                switch (token)
-                {
-                    case TextToken tt:
-                        emitToken(tt.Text);
-                        break;
-                    case PropertyToken pt:
-                        if (logEvent.Properties.TryGetValue(pt.PropertyName, out var propertyValue))
-                            emitToken(ObjectModelInterop.ToInteropValue(propertyValue));
-                        break;
-                    default:
-                        throw new InvalidOperationException();
-                }
+                case TextToken tt:
+                    emitToken(tt.Text);
+                    break;
+                case PropertyToken pt:
+                    if (logEvent.Properties.TryGetValue(pt.PropertyName, out var propertyValue))
+                        emitToken(ObjectModelInterop.ToInteropValue(propertyValue));
+                    break;
+                default:
+                    throw new InvalidOperationException();
             }
         }
     }

@@ -18,32 +18,31 @@ using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.BrowserConsole.Rendering;
 
-namespace Serilog.Sinks.BrowserConsole.Output
+namespace Serilog.Sinks.BrowserConsole.Output;
+
+class TimestampTokenRenderer : OutputTemplateTokenRenderer
 {
-    class TimestampTokenRenderer : OutputTemplateTokenRenderer
+    readonly PropertyToken _token;
+    readonly IFormatProvider? _formatProvider;
+
+    public TimestampTokenRenderer(PropertyToken token, IFormatProvider? formatProvider)
     {
-        readonly PropertyToken _token;
-        readonly IFormatProvider _formatProvider;
+        _token = token;
+        _formatProvider = formatProvider;
+    }
 
-        public TimestampTokenRenderer(PropertyToken token, IFormatProvider formatProvider)
-        {
-            _token = token;
-            _formatProvider = formatProvider;
-        }
+    public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+    {
+        // We need access to ScalarValue.Render() to avoid this alloc; just ensures
+        // that custom format providers are supported properly.
+        var sv = new ScalarValue(logEvent.Timestamp);
+        var buffer = new StringWriter();
+        sv.Render(buffer, _token.Format, _formatProvider);
+        var str = buffer.ToString();
 
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
-        {
-            // We need access to ScalarValue.Render() to avoid this alloc; just ensures
-            // that custom format providers are supported properly.
-            var sv = new ScalarValue(logEvent.Timestamp);
-            var buffer = new StringWriter();
-            sv.Render(buffer, _token.Format, _formatProvider);
-            var str = buffer.ToString();
-
-            if (_token.Alignment is not null)
-                emitToken(Padding.Apply(str, _token.Alignment));
-            else
-                emitToken(str);
-        }
+        if (_token.Alignment is not null)
+            emitToken(Padding.Apply(str, _token.Alignment));
+        else
+            emitToken(str);
     }
 }

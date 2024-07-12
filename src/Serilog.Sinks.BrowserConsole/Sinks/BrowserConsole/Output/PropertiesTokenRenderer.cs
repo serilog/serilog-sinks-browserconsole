@@ -12,47 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.Linq;
 using Serilog.Events;
 using Serilog.Parsing;
 
-namespace Serilog.Sinks.BrowserConsole.Output
+namespace Serilog.Sinks.BrowserConsole.Output;
+
+class PropertiesTokenRenderer : OutputTemplateTokenRenderer
 {
-    class PropertiesTokenRenderer : OutputTemplateTokenRenderer
+    readonly MessageTemplate _outputTemplate;
+    readonly PropertyToken _token;
+    public PropertiesTokenRenderer(PropertyToken token, MessageTemplate outputTemplate)
     {
-        readonly MessageTemplate _outputTemplate;
-        readonly PropertyToken _token;
-        public PropertiesTokenRenderer(PropertyToken token, MessageTemplate outputTemplate)
+        _outputTemplate = outputTemplate;
+        _token = token;
+    }
+
+    public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+    {
+        var included = logEvent.Properties
+            .Where(p => !TemplateContainsPropertyName(logEvent.MessageTemplate, p.Key) &&
+                        !TemplateContainsPropertyName(_outputTemplate, p.Key))
+            .Select(p => new LogEventProperty(p.Key, p.Value));
+
+        foreach (var property in included)
         {
-            _outputTemplate = outputTemplate;
-            _token = token;
+            emitToken(ObjectModelInterop.ToInteropValue(property.Value, _token.Format));
         }
+    }
 
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+    static bool TemplateContainsPropertyName(MessageTemplate template, string propertyName)
+    {
+        foreach (var token in template.Tokens)
         {
-            var included = logEvent.Properties
-                .Where(p => !TemplateContainsPropertyName(logEvent.MessageTemplate, p.Key) &&
-                            !TemplateContainsPropertyName(_outputTemplate, p.Key))
-                .Select(p => new LogEventProperty(p.Key, p.Value));
-
-            foreach (var property in included)
+            if (token is PropertyToken namedProperty &&
+                namedProperty.PropertyName == propertyName)
             {
-                emitToken(ObjectModelInterop.ToInteropValue(property.Value, _token.Format));
+                return true;
             }
         }
 
-        static bool TemplateContainsPropertyName(MessageTemplate template, string propertyName)
-        {
-            foreach (var token in template.Tokens)
-            {
-                if (token is PropertyToken namedProperty &&
-                    namedProperty.PropertyName == propertyName)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
+        return false;
     }
 }

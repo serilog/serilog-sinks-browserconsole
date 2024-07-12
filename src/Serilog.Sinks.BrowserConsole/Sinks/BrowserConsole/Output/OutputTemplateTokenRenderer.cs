@@ -14,12 +14,11 @@
 
 using Serilog.Events;
 
-namespace Serilog.Sinks.BrowserConsole.Output
-{
-    delegate void TokenEmitter(object token);
+namespace Serilog.Sinks.BrowserConsole.Output;
+
+delegate void TokenEmitter(object? token);
     
-    abstract class OutputTemplateTokenRenderer
-    {
-        public abstract void Render(LogEvent logEvent, TokenEmitter emitToken);
-    }
+abstract class OutputTemplateTokenRenderer
+{
+    public abstract void Render(LogEvent logEvent, TokenEmitter emitToken);
 }

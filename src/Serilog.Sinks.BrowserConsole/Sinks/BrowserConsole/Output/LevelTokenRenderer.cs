@@ -16,22 +16,21 @@ using Serilog.Events;
 using Serilog.Parsing;
 using Serilog.Sinks.BrowserConsole.Rendering;
 
-namespace Serilog.Sinks.BrowserConsole.Output
+namespace Serilog.Sinks.BrowserConsole.Output;
+
+class LevelTokenRenderer : OutputTemplateTokenRenderer
 {
-    class LevelTokenRenderer : OutputTemplateTokenRenderer
+    readonly PropertyToken _levelToken;
+
+    public LevelTokenRenderer(PropertyToken levelToken)
     {
-        readonly PropertyToken _levelToken;
+        _levelToken = levelToken;
+    }
 
-        public LevelTokenRenderer(PropertyToken levelToken)
-        {
-            _levelToken = levelToken;
-        }
-
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
-        {
-            var moniker = LevelOutputFormat.GetLevelMoniker(logEvent.Level, _levelToken.Format);
-            var alignedOutput = Padding.Apply(moniker, _levelToken.Alignment);
-            emitToken(alignedOutput);
-        }
+    public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+    {
+        var moniker = LevelOutputFormat.GetLevelMoniker(logEvent.Level, _levelToken.Format);
+        var alignedOutput = Padding.Apply(moniker, _levelToken.Alignment);
+        emitToken(alignedOutput);
     }
 }
