@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <VersionPrefix>3.0.0</VersionPrefix>
+    <VersionPrefix>8.0.0</VersionPrefix>
     <RootNamespace>Serilog</RootNamespace>
     <Description>Writes Serilog events to the browser console</Description>
     <Authors>Serilog Contributors</Authors>
