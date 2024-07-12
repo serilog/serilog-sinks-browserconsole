@@ -6,12 +6,12 @@ using Serilog;
 using Serilog.Debugging;
 using System.Threading.Tasks;
 
-namespace ExampleClient
+namespace ExampleClient;
+
+public class Program
 {
-    public class Program
+    public static async Task Main(string[] args)
     {
-        public static async Task Main(string[] args)
-        {
             SelfLog.Enable(m => Console.Error.WriteLine(m));
 
             Log.Logger = new LoggerConfiguration()
@@ -38,5 +38,4 @@ namespace ExampleClient
                 throw;
             }
         }
-    }
 }
