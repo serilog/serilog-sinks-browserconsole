@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- TFMs supported by this package are aligned with Microsoft.AspNetCore.Components.WebAssembly supported TFMs. -->
     <VersionPrefix>8.0.0</VersionPrefix>
     <RootNamespace>Serilog</RootNamespace>
     <Description>Writes Serilog events to the browser console</Description>
