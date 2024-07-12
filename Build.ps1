@@ -23,14 +23,15 @@ foreach ($src in ls src/*) {
 
 	echo "build: Packaging project in $src"
 
-    & dotnet build -c Release --version-suffix=$buildSuffix
+    & dotnet build -c Release  /p:ContinuousIntegrationBuild=True --version-suffix=$buildSuffix
+    if($LASTEXITCODE -ne 0) { throw "Build failed" }
 
     if($suffix) {
         & dotnet pack -c Release --no-build -o ..\..\artifacts --version-suffix=$suffix
     } else {
         & dotnet pack -c Release --no-build -o ..\..\artifacts
     }
-    if($LASTEXITCODE -ne 0) { exit 1 }
+    if($LASTEXITCODE -ne 0) { throw "Packaging failed" }
 
     Pop-Location
 }
@@ -41,7 +42,7 @@ foreach ($test in ls test/*.Tests) {
 	echo "build: Testing project in $test"
 
     & dotnet test -c Release
-    if($LASTEXITCODE -ne 0) { exit 3 }
+    if($LASTEXITCODE -ne 0) { throw "Testing failed failed" }
 
     Pop-Location
 }

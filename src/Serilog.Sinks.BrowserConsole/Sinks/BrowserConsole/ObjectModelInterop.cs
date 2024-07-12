@@ -12,44 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System.IO;
-using System.Linq;
 using Serilog.Events;
 
-namespace Serilog.Sinks.BrowserConsole
+namespace Serilog.Sinks.BrowserConsole;
+
+static class ObjectModelInterop
 {
-    static class ObjectModelInterop
+    /// <summary>
+    /// Convert a Serilog <see cref="LogEventPropertyValue"/> for JavaScript interop.
+    /// </summary>
+    public static object? ToInteropValue(LogEventPropertyValue value, string? format = null)
     {
-        /// <summary>
-        /// Convert a Serilog <see cref="LogEventPropertyValue"/> for JavaScript interop.
-        /// </summary>
-        public static object ToInteropValue(LogEventPropertyValue value, string format = null)
+        switch (value)
         {
-            if (value is ScalarValue sv)
-            {
-                if (format == null)
-                    return sv.Value;
+            case ScalarValue sv when format == null:
+                return sv.Value;
+
+            case ScalarValue sv:
                 var sw = new StringWriter();
                 sv.Render(sw, format);
                 return sw.ToString();
-            }
-
-            if (value is SequenceValue sqv)
-            {
+            
+            case SequenceValue sqv:
                 return sqv.Elements
                     .Select(e => ToInteropValue(e))
                     .ToArray();
-            }
-
-            if (value is StructureValue st)
-            {
+            
+            case StructureValue st:
                 return st.Properties
                     .ToDictionary(kv => kv.Name, kv => ToInteropValue(kv.Value));
-            }
-
-            var dv = (DictionaryValue)value;
-            return dv.Elements
-                .ToDictionary(kv => ToInteropValue(kv.Key), kv => ToInteropValue(kv.Value));
+            
+            case DictionaryValue dv:
+                return dv.Elements
+                    // May generate a runtime exception if the key is null, but this is very unusual in .NET because
+                    // the original dictionary that was serialized most likely was of a type without null keys. We
+                    // might still do better than this in the future.
+                    .ToDictionary(kv => ToInteropValue(kv.Key)!, kv => ToInteropValue(kv.Value));
+            
+            default:
+                return value;
         }
     }
 }

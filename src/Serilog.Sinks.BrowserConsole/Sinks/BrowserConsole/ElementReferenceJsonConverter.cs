@@ -14,60 +14,58 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Components;
 
-namespace Serilog.Sinks.BrowserConsole
+namespace Serilog.Sinks.BrowserConsole;
+
+sealed class ElementReferenceJsonConverter : JsonConverter<ElementReference>
 {
-    sealed class ElementReferenceJsonConverter : JsonConverter<ElementReference>
+    static readonly JsonEncodedText IdProperty = JsonEncodedText.Encode("__internalId");
+
+    readonly ElementReferenceContext _elementReferenceContext;
+
+    public ElementReferenceJsonConverter(ElementReferenceContext elementReferenceContext)
     {
-        static readonly JsonEncodedText IdProperty = JsonEncodedText.Encode("__internalId");
+        _elementReferenceContext = elementReferenceContext;
+    }
 
-        readonly ElementReferenceContext _elementReferenceContext;
-
-        public ElementReferenceJsonConverter(ElementReferenceContext elementReferenceContext)
+    public override ElementReference Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        string? id = null;
+        while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
         {
-            _elementReferenceContext = elementReferenceContext;
-        }
-
-        public override ElementReference Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        {
-            string id = null;
-            while (reader.Read() && reader.TokenType != JsonTokenType.EndObject)
+            if (reader.TokenType == JsonTokenType.PropertyName)
             {
-                if (reader.TokenType == JsonTokenType.PropertyName)
+                if (reader.ValueTextEquals(IdProperty.EncodedUtf8Bytes))
                 {
-                    if (reader.ValueTextEquals(IdProperty.EncodedUtf8Bytes))
-                    {
-                        reader.Read();
-                        id = reader.GetString();
-                    }
-                    else
-                    {
-                        throw new JsonException($"Unexpected JSON property '{reader.GetString()}'.");
-                    }
+                    reader.Read();
+                    id = reader.GetString();
                 }
                 else
                 {
-                    throw new JsonException($"Unexpected JSON Token {reader.TokenType}.");
+                    throw new JsonException($"Unexpected JSON property '{reader.GetString()}'.");
                 }
             }
-
-            if (id is null)
+            else
             {
-                throw new JsonException("__internalId is required.");
+                throw new JsonException($"Unexpected JSON Token {reader.TokenType}.");
             }
-
-            return new ElementReference(id, _elementReferenceContext);
         }
 
-        public override void Write(Utf8JsonWriter writer, ElementReference value, JsonSerializerOptions options)
+        if (id is null)
         {
-            writer.WriteStartObject();
-            writer.WriteString(IdProperty, value.Id);
-            writer.WriteEndObject();
+            throw new JsonException("__internalId is required.");
         }
+
+        return new ElementReference(id, _elementReferenceContext);
+    }
+
+    public override void Write(Utf8JsonWriter writer, ElementReference value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WriteString(IdProperty, value.Id);
+        writer.WriteEndObject();
     }
 }

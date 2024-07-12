@@ -14,20 +14,19 @@
 
 using Serilog.Events;
 
-namespace Serilog.Sinks.BrowserConsole.Output
+namespace Serilog.Sinks.BrowserConsole.Output;
+
+class TextTokenRenderer : OutputTemplateTokenRenderer
 {
-    class TextTokenRenderer : OutputTemplateTokenRenderer
+    readonly string _text;
+
+    public TextTokenRenderer(string text)
     {
-        readonly string _text;
+        _text = text;
+    }
 
-        public TextTokenRenderer(string text)
-        {
-            _text = text;
-        }
-
-        public override void Render(LogEvent logEvent, TokenEmitter emitToken)
-        {
-            emitToken(_text);
-        }
+    public override void Render(LogEvent logEvent, TokenEmitter emitToken)
+    {
+        emitToken(_text);
     }
 }
