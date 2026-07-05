@@ -36,8 +36,47 @@ class PropertiesTokenRenderer : OutputTemplateTokenRenderer
 
         foreach (var property in included)
         {
-            emitToken(ObjectModelInterop.ToInteropValue(property.Value, _token.Format));
+            new PropertyTokenRenderer(_token, property.Value).Render(logEvent, emitToken);
         }
+    }
+    private void HandleProperty(LogEventProperty property, TokenEmitter emitToken)
+    {
+        if (property.Value is ScalarValue sv)
+        {
+            if(sv.Value is null)
+            {
+                emitToken.Object(ObjectModelInterop.ToInteropValue(property.Value, _token.Format));
+                return;
+            }
+            switch (Type.GetTypeCode(sv.Value.GetType()))
+            {
+                // See https://stackoverflow.com/a/1750024
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                    emitToken.Integer(sv.Value);
+                    break;
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    emitToken.Float(sv.Value);
+                    break;
+                case TypeCode.String:
+                case TypeCode.Char:
+                    emitToken.Text(sv.Value);
+                    break;
+                default:
+                    emitToken.Object(ObjectModelInterop.ToInteropValue(property.Value, _token.Format));
+                    break;
+            }
+        }
+        else
+            emitToken.Object(ObjectModelInterop.ToInteropValue(property.Value, _token.Format));
     }
 
     static bool TemplateContainsPropertyName(MessageTemplate template, string propertyName)

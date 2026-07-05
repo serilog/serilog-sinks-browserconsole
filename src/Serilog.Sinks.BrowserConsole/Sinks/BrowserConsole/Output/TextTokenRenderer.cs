@@ -27,6 +27,31 @@ class TextTokenRenderer : OutputTemplateTokenRenderer
 
     public override void Render(LogEvent logEvent, TokenEmitter emitToken)
     {
-        emitToken(_text);
+        var textIter = _text;
+        while (!string.IsNullOrEmpty(textIter))
+        {
+            var openTagIndex = textIter.IndexOf("<<");
+            if (openTagIndex == -1) // If no open tag, add full text & exit loop
+            {
+                emitToken.Literal(textIter);
+                return;
+            }
+            var displayText = textIter[..openTagIndex];
+            emitToken.Literal(displayText);
+
+            var closeTagIndex = textIter.IndexOf(">>", openTagIndex);
+            if (closeTagIndex == -1)
+            {
+                throw new FormatException("Open tag found without close tag");
+            }
+            var styleContent = textIter[(openTagIndex + 2)..closeTagIndex];
+            if (styleContent.Trim() == "_")
+            {
+                styleContent = "";
+            }
+            emitToken.Style(styleContent);
+
+            textIter = textIter[(closeTagIndex + 2)..];
+        }
     }
 }

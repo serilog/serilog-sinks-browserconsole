@@ -41,8 +41,8 @@ class TimestampTokenRenderer : OutputTemplateTokenRenderer
         var str = buffer.ToString();
 
         if (_token.Alignment is not null)
-            emitToken(Padding.Apply(str, _token.Alignment));
+            emitToken.Text(Padding.Apply(str, _token.Alignment));
         else
-            emitToken(str);
+            emitToken.Text(str);
     }
 }

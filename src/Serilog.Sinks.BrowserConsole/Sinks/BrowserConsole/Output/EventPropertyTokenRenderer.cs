@@ -35,7 +35,7 @@ class EventPropertyTokenRenderer : OutputTemplateTokenRenderer
         if (!logEvent.Properties.TryGetValue(_token.PropertyName, out var propertyValue))
         {
             if (_token.Alignment is not null)
-                emitToken(Padding.Apply(string.Empty, _token.Alignment));
+                emitToken.Literal(Padding.Apply(string.Empty, _token.Alignment));
             return;
         }
 
@@ -55,8 +55,8 @@ class EventPropertyTokenRenderer : OutputTemplateTokenRenderer
 
         var str = writer.ToString();
         if (_token.Alignment is not null)
-            emitToken(Padding.Apply(str, _token.Alignment));
+            emitToken.Text(Padding.Apply(str, _token.Alignment));
         else
-            emitToken(str);
+            emitToken.Text(str);
     }
 }

@@ -21,6 +21,6 @@ class ExceptionTokenRenderer : OutputTemplateTokenRenderer
     public override void Render(LogEvent logEvent, TokenEmitter emitToken)
     {
         if (logEvent.Exception is not null)
-            emitToken(logEvent.Exception.ToString());
+            emitToken.Text(logEvent.Exception.ToString());
     }
 }

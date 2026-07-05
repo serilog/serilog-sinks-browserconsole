@@ -30,8 +30,8 @@ class NewLineTokenRenderer : OutputTemplateTokenRenderer
     public override void Render(LogEvent logEvent, TokenEmitter emitToken)
     {
         if (_alignment is not null)
-            emitToken(Padding.Apply(Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length)));
+            emitToken.Literal(Padding.Apply(Environment.NewLine, _alignment.Value.Widen(Environment.NewLine.Length)));
         else
-            emitToken(Environment.NewLine);
+            emitToken.Literal(Environment.NewLine);
     }
 }

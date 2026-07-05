@@ -27,10 +27,10 @@ namespace Serilog;
 public static class LoggerConfigurationBrowserConsoleExtensions
 {
     const string SerilogToken =
-        "%cserilog{_}color:white;background:#8c7574;border-radius:3px;padding:1px 2px;font-weight:600;";
-            
-    const string DefaultConsoleOutputTemplate = SerilogToken + "{Message}{NewLine}{Exception}";
-        
+        "<<color:white;background:#8c7574;border-radius:3px;padding:1px 2px;font-weight:600;>>serilog<<_>>";
+
+    const string DefaultConsoleOutputTemplate = SerilogToken + "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}";
+
     /// <summary>
     /// Writes log events to the browser console.
     /// </summary>
@@ -38,8 +38,9 @@ public static class LoggerConfigurationBrowserConsoleExtensions
     /// <param name="restrictedToMinimumLevel">The minimum level for
     /// events passed through the sink. Ignored when <paramref name="levelSwitch"/> is specified.</param>
     /// <param name="outputTemplate">A message template describing the format used to write to the sink.
-    /// The default is <code>"[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"</code>.</param>
+    /// The default is <code>"(serilog) [{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}"</code>.</param>
     /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
+    /// <param name="tokenStyles">A dictionary of styles to apply to tokens. See <a href="https://developer.mozilla.org/en-US/docs/Web/API/console#styling_console_output">MDN about console styling</a></param>
     /// <param name="levelSwitch">A switch allowing the pass-through minimum level
     /// to be changed at runtime.</param>
     /// <param name="jsRuntime">An instance of <see cref="IJSRuntime"/> to interact with the browser.</param>
@@ -49,11 +50,12 @@ public static class LoggerConfigurationBrowserConsoleExtensions
         LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
         string outputTemplate = DefaultConsoleOutputTemplate,
         IFormatProvider? formatProvider = null,
+        IReadOnlyDictionary<string, string>? tokenStyles = null,
         LoggingLevelSwitch? levelSwitch = null,
         IJSRuntime? jsRuntime = null)
     {
         ArgumentNullException.ThrowIfNull(sinkConfiguration);
-        var formatter = new OutputTemplateRenderer(outputTemplate, formatProvider); 
+        var formatter = new OutputTemplateRenderer(outputTemplate, formatProvider, tokenStyles); 
         return sinkConfiguration.Sink(new BrowserConsoleSink(jsRuntime, formatter), restrictedToMinimumLevel, levelSwitch);
     }
 }

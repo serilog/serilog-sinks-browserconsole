@@ -1,4 +1,4 @@
-// Copyright 2017 Serilog Contributors
+﻿// Copyright 2017 Serilog Contributors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,24 +13,22 @@
 // limitations under the License.
 
 using Serilog.Events;
-using Serilog.Parsing;
-using Serilog.Sinks.BrowserConsole.Rendering;
 
 namespace Serilog.Sinks.BrowserConsole.Output;
 
-class LevelTokenRenderer : OutputTemplateTokenRenderer
+class StyleTokenRenderer : OutputTemplateTokenRenderer
 {
-    readonly PropertyToken _levelToken;
+    public static readonly StyleTokenRenderer Reset = new("");
 
-    public LevelTokenRenderer(PropertyToken levelToken)
+    private readonly string _style;
+
+    public StyleTokenRenderer(string style)
     {
-        _levelToken = levelToken;
+        _style = style;
     }
 
     public override void Render(LogEvent logEvent, TokenEmitter emitToken)
     {
-        var moniker = LevelOutputFormat.GetLevelMoniker(logEvent.Level, _levelToken.Format);
-        var alignedOutput = Padding.Apply(moniker, _levelToken.Alignment);
-        emitToken.Text(alignedOutput);
+        emitToken.Style(_style);
     }
 }
