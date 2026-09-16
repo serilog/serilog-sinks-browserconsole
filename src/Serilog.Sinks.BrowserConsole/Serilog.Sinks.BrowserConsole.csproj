@@ -1,40 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <!-- TFMs supported by this package are aligned with Microsoft.AspNetCore.Components.WebAssembly supported TFMs. -->
-    <VersionPrefix>8.0.1</VersionPrefix>
-    <RootNamespace>Serilog</RootNamespace>
-    <Description>Writes Serilog events to the browser console</Description>
-    <Authors>Serilog Contributors</Authors>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <PackageTags>serilog;blazor</PackageTags>
-    <PackageIcon>icon.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/serilog/serilog-sinks-browserconsole</PackageProjectUrl>
-	<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
-    <TreatSpecificWarningsAsErrors />
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <LangVersion>latest</LangVersion>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <Nullable>enable</Nullable>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <IncludeSymbols>true</IncludeSymbols>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <InternalsVisibleTo Include="Serilog.Sinks.BrowserConsole.Tests" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<VersionPrefix>10.0.1</VersionPrefix>
+		<RootNamespace>Serilog</RootNamespace>
+		<Description>Writes Serilog events to the browser console</Description>
+		<Authors>Serilog Contributors</Authors>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<PackageTags>serilog;blazor</PackageTags>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageProjectUrl>https://github.com/serilog/serilog-sinks-browserconsole</PackageProjectUrl>
+		<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+		<TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+		<TreatSpecificWarningsAsErrors />
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Nullable>enable</Nullable>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<IncludeSymbols>true</IncludeSymbols>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.7" />
-    <PackageReference Include="Serilog" Version="4.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<InternalsVisibleTo Include="Serilog.Sinks.BrowserConsole.Tests" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\assets\icon.png" Pack="true" Visible="false" PackagePath="" />
-    <None Include="..\..\README.md" Pack="true" Visible="false" PackagePath="" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.12" />
+		<PackageReference Include="Serilog" Version="4.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\assets\icon.png" Pack="true" Visible="false" PackagePath="" />
+		<None Include="..\..\README.md" Pack="true" Visible="false" PackagePath="" />
+	</ItemGroup>
 
 </Project>
