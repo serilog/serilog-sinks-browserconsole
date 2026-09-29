@@ -44,6 +44,7 @@ public static class LoggerConfigurationBrowserConsoleExtensions
     /// to be changed at runtime.</param>
     /// <param name="jsRuntime">An instance of <see cref="IJSRuntime"/> to interact with the browser.</param>
     /// <returns>Configuration object allowing method chaining.</returns>
+    [Obsolete("Pass an IJSRuntime explicitly to BrowserConsole() to avoid relying on the default WebAssembly runtime.")]
     public static LoggerConfiguration BrowserConsole(
         this LoggerSinkConfiguration sinkConfiguration,
         LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
@@ -55,5 +56,38 @@ public static class LoggerConfigurationBrowserConsoleExtensions
         ArgumentNullException.ThrowIfNull(sinkConfiguration);
         var formatter = new OutputTemplateRenderer(outputTemplate, formatProvider); 
         return sinkConfiguration.Sink(new BrowserConsoleSink(jsRuntime, formatter), restrictedToMinimumLevel, levelSwitch);
+    }
+
+    /// <summary>
+    /// Writes log events to the browser console using the specified JavaScript runtime.
+    /// </summary>
+    /// <param name="sinkConfiguration">Logger sink configuration.</param>
+    /// <param name="jsRuntime">An instance of <see cref="IJSRuntime"/> used to interact with the browser.</param>
+    /// <param name="restrictedToMinimumLevel">
+    /// The minimum level for events passed through the sink. Ignored when <paramref name="levelSwitch"/> is specified.
+    /// </param>
+    /// <param name="outputTemplate">A message template describing the format used to write to the sink.</param>
+    /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
+    /// <param name="levelSwitch">
+    /// A switch allowing the pass-through minimum level to be changed at runtime.
+    /// </param>
+    /// <returns>Configuration object allowing method chaining.</returns>
+    public static LoggerConfiguration BrowserConsole(
+        this LoggerSinkConfiguration sinkConfiguration,
+        IJSRuntime jsRuntime,
+        LogEventLevel restrictedToMinimumLevel = LevelAlias.Minimum,
+        string outputTemplate = DefaultConsoleOutputTemplate,
+        IFormatProvider? formatProvider = null,
+        LoggingLevelSwitch? levelSwitch = null)
+    {
+        ArgumentNullException.ThrowIfNull(sinkConfiguration);
+        ArgumentNullException.ThrowIfNull(jsRuntime);
+
+        var formatter = new OutputTemplateRenderer(outputTemplate, formatProvider);
+
+        return sinkConfiguration.Sink(
+            new BrowserConsoleSink(jsRuntime, formatter),
+            restrictedToMinimumLevel,
+            levelSwitch);
     }
 }
