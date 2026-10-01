@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using Serilog.Debugging;
 using System.Threading.Tasks;
+using Microsoft.JSInterop;
 
 namespace ExampleClient;
 
@@ -14,14 +15,6 @@ public class Program
     {
             SelfLog.Enable(m => Console.Error.WriteLine(m));
 
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.BrowserConsole()
-                .CreateLogger();
-
-            Log.Debug("Hello, browser!");
-            Log.Warning("Received strange response {@Response} from server", new { Username = "example", Cats = 7 });
-
             try
             {
 				var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -30,12 +23,22 @@ public class Program
 
 				builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-				await builder.Build().RunAsync();
+                var app = builder.Build();
+
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Debug()
+                    .WriteTo.BrowserConsole(app.Services.GetRequiredService<IJSRuntime>())
+                    .CreateLogger();
+
+                Log.Debug("Hello, browser!");
+                Log.Warning("Received strange response {@Response} from server", new { Username = "example", Cats = 7 });
+
+                await app.RunAsync();
             }
             catch (Exception ex)
             {
                 Log.Fatal(ex, "An exception occurred while creating the WASM host");
                 throw;
             }
-        }
+    }
 }
